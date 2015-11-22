@@ -1,0 +1,159 @@
+%
+% latex-sample.tex
+%
+% This LaTeX source file provides a template for a typical research paper.
+%
+
+%
+% Use the standard article template.
+%
+\documentclass{article}
+
+\usepackage{geometry}
+\geometry{letterpaper}
+
+\usepackage{cite}
+\usepackage{doc}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+
+\title{Energy Disaggregation}
+\author{All our names}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\abstract{
+Whatever we exactly did
+}
+
+NOTE: Needs to be cleaned up now
+
+\section{Introduction}
+
+
+Energy disaggregation (or NILM, non-intrusive load-monitoring) is the problem of estimating individual appliance energy consumption from a single measure of an entire household's energy consumption. Studies have shown people are motivated to save energy when given knowledge of appliance energy consumption \cite{Darby}. Faulty devices could also be identified by abnormal energy consumption. In most cases, ground truth data is not able to be collection from an individual home. Therefore, any method used should be able to generalize information from one house to many other houses.
+​
+George Hart began research in NILM by manually extracting small numbers of features for disaggregation \cite{Hart2, Hart1}. Further work has been done on automatically identifying features using deep-layer neural networks \cite{ Kelly}.
+
+Common issues result when classifying devices with low power usage, such as phone chargers, because noise obscures the data. Nonetheless, the large number of devices of this type result in a significant shift in data, and identifying these clumps of common low energy devices may be of interest. Another research issue is the lack of sufficiently large labelled data sets in order to efficiently run supervised algorithms. Therefore, one source of work may be on using an unsupervised learning on large unlabelled data sets in order to generate features to augment a supervised approach. Alternatively, we could work on generating more realistic synthetic data to expand the utility of the supervised approach.
+
+​
+A useful tool for energy disaggregation is the non-intrusive load-monitoring toolkit, or NILMTK. We should look at this when we start coding!
+
+
+
+\section{Similar areas}
+
+%TODO: May not want to use this section, if we only have one topic.
+
+\subsection{Independent Component Analysis}
+​
+Suppose you are at a cocktail party, but you've forgotten how to hear someones voice. You observe sound waves $X^1_t, \dots, X^m_t$, at each time $t$, which you know to be a linear combination of some sound effects, $A_t, B_t, \dots, E_t$. That is,
+%
+\[ X_t^k = a A_t + b B_t + \dots + e E_t \]
+%
+for some scalars $a_i$. The {\bf cocktail party problem} asks you to estimate the sound waves, observing only the sound wave $X_t$.
+​
+Independent component analysis assumes the $A_t, \dots, E_t$ are statistically independent, have non-Gaussian distributions, and we have enough data to invert the `mixing matrix' of coefficients. Through this, it attempts to maximize nongaussianity. %TODO: Better word?
+​
+In NILM, the $X_t$ represents the power being used in a house at a certain time. We may assume the coefficients $a, b, \dots, e$ are binary (used or not used in a house). Unfortunately, the power signals $A_t, B_t, \dots, E_t$ are not statistically independent in this task (one may use two different devices at the same time, always put the kettle on when using the toaster, etc.), so we believe that applying independent component analysis will not achieve significantly better results to existing methods. Though it may in practice be possible to reconstruct independent combinations of $A_t$, to be used as an additional feature into a neural network, we do not have plans to implement this at this time. \cite{Aapo}
+
+
+\section{Hidden Markov Models applied using Parsons Method}
+
+%TODO: I know this is not the right way to do it
+In his masters thesis, Chichetti \cite{Cicchetti}
+
+\subsection{Neural Networks (Kelly and Knottenbelt)}
+
+Unfortunately, hand-designed features are normally not robust enough to handle noise and artifacts. It is therefore in interest to automatically learn features. Neural Networks provide us with the ability to generate features. Low-layer neural networks do not appear to learn a hierarchy of features complex enough to handle the problem (See Roos, NEED CITATION THOUGH...). Increased computational power has recently enabled us to use deep-layer neural networks to attack the problem of energy disaggregation.
+​
+Kelly and Knottenbelt identify that often signal reconstruction is not integral to applications. Therefore, they take their task to be identification of a begin time, end time, and overall energy usage of a specific device, during the first cycle it is used. They attempt to solve the problem via an amalgamation of Constitutional, Feed forward, and recurrent neural nets, combined with a denoising error\footnote{Viewing other data as `noise' may also cut out the holistic approach to the problem, removing the problem of global consistency.} and training on each device individually\footnote{This may ignore inherent relationships between different devices (though perhaps the neural networks account for this). Perhaps a way to `double check' nets are correct may provide a more effective, holistic approach.}. Due to the extensive data set one needs to train deep nets, the pair generates synthetic data by combining data with `noise' data\footnote{The data they generate is naive, and we will likely see performance increases from a more realistic generation of data, or through pre-training on large amounts of unlabelled data, then a less extensive training on real data.}. I did not understand how data was selected for training, but I do no it is normalized to have mean zero -- which may or may not reduce the ability to consistently identify features.
+​
+Questions about the paper:
+%
+\begin{enumerate}
+	\item Using Convolutional Neural networks (Time Invariant).
+	\item Ignoring all but first activation.
+	\item Why does the algorithm ignore all but the first activation.
+	\item Local to Global.
+	\item NILMTK will be useful!
+	\item Periodicity.
+\end{enumerate}
+​
+One neural network is trained per target appliance, based on real data and synthetically generated data.
+
+**Another interesting aspect of the paper was how they used Denoising Autoencoders.
+​
+\subsection{Deep Recurrent Neural Networks}
+​
+A standard recurrent neural network with $t$ layers assumes a statistical model is parameterized by matrices $A,B$ and $C$ and a bias vector $b$, where if $x = (x_1, \dots, x_n)$ is observed, then our output $y$ is generated iteratively by the equations
+%
+\[ h_t = \sigma(A h_{t-1} + B x + b) \]
+%
+\[ y = C h_N \]
+%
+We feed our data through the neural network $N$ times before generating the output. It may be of interest to use Long short-term memory architectures, defining $h_t$ instead by
+%
+\[ I_t = \sigma(Ax + B h_{t-1} + C c_{t-1} + b_1) \]
+%
+\[ F_t = \sigma(Dx + E h_{t-1} + F c_{t-1} + b_2) \]
+%
+\[ c_t = F_t c_{t-1} + I_t \tanh(G x + H h_{t-1} + b_3) \]
+%
+\[ o_t = \sigma(K x + L h + M c_t + b_4) \]
+%
+\[ h_t = o_t \tanh(c_t) \]
+​
+Bidirectional networks use forward and backward sequences, which compute ...
+​
+What's nice about these types of neural networks is that we can analyze them as a dynamical system -- which matches up nicely as viewing pre-training as a dynamical system!
+
+Used in \cite{Kelly}.
+​
+\subsection{Speech Recognition and Pre-training}
+​
+Restricted Boltzmann Machines have been applied to Speech Recognition neural-network pre-training (Application of Pretrained Deep
+Neural Networks to Large
+Vocabulary Conversational Speech
+Recognition, Jaitly, Nguyen, Senior, Vanhocke), (Dahl et al., 2012, Mohamed et al., 2012).
+
+
+%TODO: Which was source 3?
+Known as nonintrusive load monitoring (NILM) various researchers have investigated this problem. Weiss (Source3?) presume the power consumption as a sequence of piecewise constant consumption levels whose differences describe the typical consumption pattern of a distinct device. Since they get remarkable F-scores of 80\% and higher for some devices we also had a look for signal where this assumption holds.
+
+Latest progress was made by applying deep neural nets, where Kelly and Knottenbelt \cite{Kelly} used recurrent neural networks with four hidden layers and achieved positive results for stable-behaving devices, but lacked accuracy for multi-stated ones, leading to a F-score of 51\%. They also considered denoising autoencoders training one neural net per appliance. The neural net takes the power consumption within a sliding window as input and separates the devices consumption from the remaining power. Determining the window size by the usual activity time of the device they achieve an F-score of 70\%. Both of their approaches have in the training phase the separated energy consumption for every device making them supervised ones.
+
+Parson () uses one Hidden Markov Model per device to describe its consumption and figure out at what time it was active. Even though his approach is unsupervised he gets F-scores for up to 85\% for devices with clearly distinguish patterns (e.g. fridges). His results encourage us that unsupervised methods are able to achieve positive results as well. 	
+
+\section{Our Stuff}
+
+Unlike many of the other methods, we are assuming that we do not have the disaggregated power signature for each device during the learning stage. Instead, we assume to instead have accurate information about when each device is active, due to the trend of the "Internet of Things". Where many devices are connected to the internet, and could thus provide information about when they are active.
+%TODO: Get paper for this?
+
+\subsection{Performance Task}
+
+Given the total power usage of a home over time and knowledge of at what times each device was on, can we decompose the aggregated power signal into the power signal for each device?
+
+OR:
+
+Given the total power usage of a home over time, can we determine when each device was active?
+
+
+%TODO: Example?
+
+\subsection{Learning Task}
+
+Given the total power usage of several homes and information about when each class of device was on, can we learn a model for each class of device which will allow us to recover the individual device signal from the aggregate power usage?
+
+%TODO: Example?
+
+% Generate the bibliography.
+\bibliography{biblio}
+\bibliographystyle{unsrt}
+
+\end{document}
