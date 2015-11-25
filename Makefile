@@ -15,3 +15,7 @@ test: FORCE
 	nosetests2 test/
 
 FORCE:
+
+report.pdf:
+	cd report && \
+	latexmk -pdf -pdflatex="pdflatex -interaction=nonstopmode" report
