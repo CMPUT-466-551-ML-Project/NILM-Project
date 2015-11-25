@@ -1,7 +1,12 @@
 all: clean pylint test
 
-clean:
+clean: clean.python clean.latex
+
+clean.python:
 	find . -name '*.pyc' -delete
+
+clean.latex:
+	cd report && latexmk -bibtex -c
 
 pylint: pylint.nilm pylint.test
 
