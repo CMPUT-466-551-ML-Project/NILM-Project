@@ -57,3 +57,49 @@ class TestTimeSeries(unittest.TestCase):
         indicators = ts.indicators(np.float32(1.1))
 
         self.assertItemsEqual(indicators, indicators_test)
+
+    def test_addition(self):
+        """Test adding two TimeSeries together."""
+        ts1 = TimeSeries()
+        ts1.array.resize(3)
+        ts1.array[0] = (np.uint32(1), np.float32(0.5))
+        ts1.array[1] = (np.uint32(2), np.float32(1.0))
+        ts1.array[2] = (np.uint32(3), np.float32(2.0))
+
+        ts2 = TimeSeries()
+        ts2.array.resize(3)
+        ts2.array[0] = (np.uint32(1), np.float32(0.0))
+        ts2.array[1] = (np.uint32(2), np.float32(1.0))
+        ts2.array[2] = (np.uint32(3), np.float32(3.0))
+
+        ts_test = TimeSeries()
+        ts_test.array.resize(3)
+        ts_test.array[0] = (np.uint32(1), np.float32(0.5))
+        ts_test.array[1] = (np.uint32(2), np.float32(2.0))
+        ts_test.array[2] = (np.uint32(3), np.float32(5.0))
+
+        ts_add = ts1 + ts2
+
+        self.assertItemsEqual(ts_add.powers, ts_test.powers)
+
+    def test_addition_no_intersect(self):
+        """ Test adding two TimeSeries with different timestamps."""
+        ts1 = TimeSeries()
+        ts1.array.resize(3)
+        ts1.array[0] = (np.uint32(1), np.float32(0.5))
+        ts1.array[1] = (np.uint32(2), np.float32(1.0))
+        ts1.array[2] = (np.uint32(4), np.float32(2.0))
+
+        ts2 = TimeSeries()
+        ts2.array.resize(3)
+        ts2.array[0] = (np.uint32(1), np.float32(0.0))
+        ts2.array[1] = (np.uint32(3), np.float32(1.0))
+        ts2.array[2] = (np.uint32(5), np.float32(3.0))
+
+        ts_test = TimeSeries()
+        ts_test.array.resize(1)
+        ts_test.array[0] = (np.uint32(1), np.float32(0.5))
+
+        ts_add = ts1 + ts2
+
+        self.assertItemsEqual(ts_add.powers, ts_test.powers)
