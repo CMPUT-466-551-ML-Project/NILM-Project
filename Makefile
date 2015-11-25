@@ -1,3 +1,5 @@
+all: clean pylint test
+
 clean:
 	find . -name '*.pyc' -delete
 
