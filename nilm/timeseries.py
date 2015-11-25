@@ -33,3 +33,10 @@ class TimeSeries(object):
     def powers(self, power_array):
         """Set the powers in the series to a copy of the given array-."""
         self.array['power'] = power_array.copy()
+
+    def indicators(self, threshold=np.float32(0.0)):
+        """
+        Returns the boolean on-off indicators for the timeseries, given a power
+        threshold.
+        """
+        return np.apply_along_axis(lambda x: (x > threshold), 0, self.powers)
