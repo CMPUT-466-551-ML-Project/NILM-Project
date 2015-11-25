@@ -54,3 +54,16 @@ class TimeSeries(object):
         ts_sum.powers += ts.powers[indices2]
 
         return ts_sum
+
+    def __sub__(self, ts):
+        """
+        Subtract two timeseries, based on the intersection of their timestamps.
+        """
+        indices1 = np.in1d(self.times, ts.times, assume_unique=True)
+        indices2 = np.in1d(ts.times, self.times, assume_unique=True)
+
+        ts_diff = TimeSeries()
+        ts_diff.array = self.array[indices1]
+        ts_diff.powers -= ts.powers[indices2]
+
+        return ts_diff
