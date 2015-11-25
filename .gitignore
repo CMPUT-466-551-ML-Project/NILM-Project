@@ -58,3 +58,10 @@ target/
 
 # Editor artifacts
 *~
+
+# Latex artifacts.
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.pdf
