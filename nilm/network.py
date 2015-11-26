@@ -16,11 +16,16 @@ class DenoisingAutoencoder(object):
     def __init__(self, window_size):
         self.window_size = window_size
         self.size = (window_size - 3) * 8
+        self.initialize_model()
+
+    def initialize_model(self):
+        """Initialize the network model."""
         self.model = Sequential()
 
         self.model.add(Convolution1D(8, 4, 'uniform', 'linear',
                                      border_mode='valid', subsample_length=1,
-                                     input_dim=1, input_length=window_size))
+                                     input_dim=1,
+                                     input_length=self.window_size))
         self.model.add(Flatten())
         self.model.add(Dense(output_dim=self.size, init='uniform',
                              activation='relu'))
