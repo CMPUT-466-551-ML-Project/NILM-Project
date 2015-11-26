@@ -2,21 +2,28 @@ from keras.models import Sequential
 from keras.layers.convolutional import Convolution1D, MaxPooling1D
 from keras.layers.core import Dense, Flatten, Reshape
 
-sequenceLength = 1000
-size = (1000 - 3) * 8
+class DenoisingAutoencoder(object):
+    
+    def __init__(self, windowSize):
+        self.windowSize = windowSize
+        self.size = (windowSize - 3) * 8
+        self.model = Sequential()
+        
+        self.model.add(Convolution1D(8, 4, 'uniform', 'linear', border_mode='valid', 
+                                     subsample_length=1, input_dim=1, input_length=windowSize))
+        self.model.add(Flatten())
+        
+        self.model.add(Dense(output_dim=size, init='uniform', activation='relu'))
+        self.model.add(Dense(128, 'uniform', 'relu'))
+        self.model.add(Dense(size, 'uniform', 'relu'))
+        self.model.add(Reshape(dims=(size, 1)))
+        self.model.add(Convolution1D(1, 4, 'uniform', 'linear', border_mode='valid',
+                                     subsample_length=1, input_dim=1, input_length=size))
+        
+        self.model.compile(loss='mean_squared_error', optimizer='rmsprop')        
+        
+    def train(self, X, Y):
+        #model.fit(X, Y, batch_size=10, nb_epoch=1)
+        return
 
-model = Sequential()
-
-model.add(Convolution1D(8, 4, 'uniform', 'linear', border_mode='valid', 
-                        subsample_length=1, input_dim=1, input_length=sequenceLength))
-model.add(Flatten())
-
-model.add(Dense(output_dim=size, init='uniform', activation='relu'))
-model.add(Dense(128, 'uniform', 'relu'))
-model.add(Dense(size, 'uniform', 'relu'))
-model.add(Reshape(dims=(size, 1)))
-model.add(Convolution1D(1, 4, 'uniform', 'linear', border_mode='valid', subsample_length=1, input_dim=1, input_length=size))
-
-model.compile(loss='mean_squared_error', optimizer='rmsprop')
-
-#model.train()
+neuralNet = DenoisingAutoencoder(1000)  #compile example neural net
