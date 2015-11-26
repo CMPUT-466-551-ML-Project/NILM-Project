@@ -42,9 +42,8 @@ class TestPreprocess(unittest.TestCase):
 
         energies_test = [np.float32(1.0), np.float32(1.0), np.float(1.0)]
 
-        is_close = [np.isclose(e[0], e[1], atol=np.float32(1e-3)) for
-                    e in zip(energies_test, energies[0])]
-        self.assertTrue(all(is_close))
+        self.assertTrue(np.allclose(energies_test, energies[0],
+                                    atol=np.float32(1e-3)))
 
     def test_constant_energy(self):
         """Test constant energy preprocessing on a more complicated matrix."""
@@ -72,6 +71,5 @@ class TestPreprocess(unittest.TestCase):
 
         energies_test = [np.float32(2.0), np.float32(1.0), np.float(3.0)]
 
-        is_close = [np.isclose(e[0], e[1], atol=np.float32(1e-3)) for
-                    e in zip(energies_test, energies[0])]
-        self.assertTrue(all(is_close))
+        self.assertTrue(np.allclose(energies_test, energies[0],
+                                    atol=np.float32(1e-3)))
