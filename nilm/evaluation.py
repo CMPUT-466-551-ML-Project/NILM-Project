@@ -28,3 +28,8 @@ def f_score(test, truth, threshold=np.float32(0.0)):
     recall = true_positives / (true_positives + false_negatives)
 
     return 2 * precision * recall / (precision + recall)
+
+
+def mean_squared_error(test, truth):
+    """Calculate the mean squared error between the two arrays."""
+    return ((test - truth) ** 2).mean(axis=None)
