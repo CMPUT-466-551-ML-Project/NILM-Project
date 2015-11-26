@@ -4,7 +4,7 @@ Set of neural networks for use with NILM task.
 
 import os
 
-from keras.models import Sequential
+from keras.models import Sequential, model_from_yaml
 from keras.layers.convolutional import Convolution1D
 from keras.layers.core import Dense, Flatten, Reshape
 
@@ -56,3 +56,14 @@ class DenoisingAutoencoder(object):
         """Save the network weights to the given path in HDF5."""
         path = os.path.abspath(path)
         self.model.save_weights(path)
+
+    def load_model(self, model_path):
+        """ Load the network model from the given path."""
+        model_path = os.path.abspath(model_path)
+        with open(model_path, 'r') as fd:
+            self.model = model_from_yaml(fd.read())
+
+    def load_weights(self, weight_path):
+        """Load the network weights from the given path."""
+        weight_path = os.path.abspath(weight_path)
+        self.model.load_weights(weight_path)
