@@ -67,3 +67,12 @@ class TimeSeries(object):
         ts_diff.powers -= ts.powers[indices2]
 
         return ts_diff
+
+    def intersect(self, ts):
+        """
+        Modify self to only contain the timestamps present in the given
+        timeseries.
+        """
+        indices = np.in1d(self.times, ts.times, assume_unique=True)
+
+        self.array = self.array[indices]
