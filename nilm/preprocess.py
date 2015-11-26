@@ -6,11 +6,14 @@ import numpy as np
 
 from scipy.optimize import minimize
 
+from nilm.evaluation import mean_squared_error
+
 
 def solve_constant_energy(aggregated, *device_activations):
     """
     Invert the indicator matrix, solving for the constant energy of each
-    device.
+    device. We return the constant power for each device, and the mean squared
+    error.
     """
     def objective(power, total, matrix):
         """Objective function for the minimization."""
@@ -24,4 +27,6 @@ def solve_constant_energy(aggregated, *device_activations):
     solution = minimize(objective, p0, args=(aggregated, matrix),
                         method='SLSQP', bounds=bounds)
 
-    return solution.x
+    error = mean_squared_error(np.dot(matrix, solution.x), aggregated)
+
+    return (solution.x, error)
