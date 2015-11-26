@@ -2,6 +2,8 @@
 Set of neural networks for use with NILM task.
 """
 
+import os
+
 from keras.models import Sequential
 from keras.layers.convolutional import Convolution1D
 from keras.layers.core import Dense, Flatten, Reshape
@@ -41,3 +43,16 @@ class DenoisingAutoencoder(object):
     def train(self, aggregate_power, device_power):
         """Train the network given the aggregate and device powers."""
         self.model.fit(aggregate_power, device_power, batch_size=10, nb_epoch=1)
+
+    def save_model(self, path):
+        """Save the network model to the given path as yaml."""
+        yaml_string = self.model.to_yaml()
+        path = os.path.abspath(path)
+
+        with open(path, 'r') as fd:
+            fd.write(yaml_string)
+
+    def save_weights(self, path):
+        """Save the network weights to the given path in HDF5."""
+        path = os.path.abspath(path)
+        self.model.save_weights(path)
