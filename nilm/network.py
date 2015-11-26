@@ -15,10 +15,17 @@ class DenoisingAutoencoder(object):
     convoluted before being fed into an encoding layer. From the encoding layer
     we learn to recover the original signal.
     """
-    def __init__(self, window_size):
+    def __init__(self, window_size, model_path=None, weight_path=None):
         self.window_size = window_size
         self.size = (window_size - 3) * 8
-        self.initialize_model()
+
+        if model_path is not None:
+            self.load_model(model_path)
+        else:
+            self.initialize_model()
+
+        if weight_path is not None:
+            self.load_weights(weight_path)
 
     def initialize_model(self):
         """Initialize the network model."""
