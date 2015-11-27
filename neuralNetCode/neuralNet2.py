@@ -61,9 +61,9 @@ for device in selectedDevices:
         # Standardize the input and target
         average = np.average(xWindow)
         for i in range(device.windowSize):
-            yWindow[i] = yWindow[i] / device.maxPowerDemand
+            yWindow[i] = np.array(yWindow[i] / device.maxPowerDemand)
             xWindow[i] = xWindow[i] - average
-            xWindow[i] = xWindow[i] / std
+            xWindow[i] = np.array(xWindow[i] / std)
         
         xWindows.append(xWindow)
         yWindows.append(yWindow)
