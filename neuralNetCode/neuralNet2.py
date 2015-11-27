@@ -29,29 +29,47 @@ class DenoisingAutoencoder(object):
     def train(self, X, Y):
         model.fit(X, Y, batch_size=10, nb_epoch=1)
         return
+    
+class Device(object):
+    
+    def __init__(self, number, windowSize, maxPowerDemand):
+        self.number = number
+        self.windowSize = windowSize
+        self.maxPowerDemand = maxPowerDemand
 
 numDevices = 4
-selectedDevices = ['5', '11', '13', '14']
-windowSize = [1000, 1000, 1000, 1000]
+selectedDevices = [Device('5', 1000, 35), Device('11', 1000, 35), 
+                   Device('13', 1000, 35), Device('14', 1000, 35)]
 neuralNets = []
 
 consumption = pd.read_csv('chunk_firsttwelfhours_consumption.csv', index_col=0, header=0)
-x = consumption['1']
+x = consumption['1'].as_matrix()
 
-for i in range(numDevices):
-    
-    y = consumption[selectedDevices[i]]
+std = np.std(np.random.choice(x, 10000))
+
+for device in selectedDevices:
+    y = consumption[device.number].as_matrix()
     length = min(len(x), len(y))
-    print length
+    
     xWindows = []
     yWindows = []
     stepSize = 10000
-    for j in range(0, length - windowSize[i] + 1, stepSize):
-        xWindows.append(np.array(x[j:j+windowSize[i]]))
-        yWindows.append(np.array(y[j:j+windowSize[i]]))
+    
+    for j in range(0, length - device.windowSize + 1, stepSize):
+        xWindow = x[j:j+device.windowSize]
+        yWindow = y[j:j+device.windowSize]
+        # Standardize the input and target
+        average = np.average(xWindow)
+        for i in range(device.windowSize):
+            yWindow[i] = yWindow[i] / device.maxPowerDemand
+            xWindow[i] = xWindow[i] - average
+            xWindow[i] = xWindow[i] / std
+        
+        xWindows.append(xWindow)
+        yWindows.append(yWindow)
         
     xWindows = np.array(xWindows)
     yWindows = np.array(yWindows)
-    neuralNet = DenoisingAutoencoder(windowSize[i])
+    neuralNet = DenoisingAutoencoder(device.windowSize)
     neuralNet.train(xWindows, yWindows)
     neuralNets.append(neuralNet)
