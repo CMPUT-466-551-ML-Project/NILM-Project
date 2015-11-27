@@ -27,70 +27,72 @@
 \maketitle
 
 \abstract{
-Whatever we exactly did
+Whatever we exactly did. Something about how, for Internet of Things, device on/off is more readily available
+Would be very useful if could train off it combined with the aggregated data, rather than also using the disaggregated data or taking an unsupervised approach.
 }
 
 NOTE: Needs to be cleaned up now
+NOTE: sub-metering is the word we want for measuring disaggregated energy signals
+%TODO: Do we assume that are either ON or OFF, or that they can have multiple levels?
+	%NOTE: another paper assumed that 'all appliances that have more than two states (e.g., on and off) will produce events that can be explained by two-state appliances'
+%TODO: Outline where we got the data from
 
 \section{Introduction}
-
 
 Energy disaggregation (or NILM, non-intrusive load-monitoring) is the problem of estimating individual appliance energy consumption from a single measure of an entire household's energy consumption.
 Studies have shown people are motivated to save energy when given knowledge of appliance energy consumption \cite{Darby}.
 Faulty devices could also be identified by abnormal energy consumption.
-In most cases, ground truth data is not able to be collection from an individual home.
-Therefore, any method used should be able to generalize information from one house to many other houses.
-​
-George Hart began research in NILM by manually extracting small numbers of features for disaggregation \cite{Hart2, Hart1}.
-Further work has been done on automatically identifying features using deep-layer neural networks \cite{ Kelly}.
-
-Common issues result when classifying devices with low power usage, such as phone chargers, because noise obscures the data.
-Nonetheless, the large number of devices of this type result in a significant shift in data, and identifying these clumps of common low energy devices may be of interest.
-Another research issue is the lack of sufficiently large labelled data sets in order to efficiently run supervised algorithms.
-Therefore, one source of work may be on using an unsupervised learning on large unlabelled data sets in order to generate features to augment a supervised approach.
-Alternatively, we could work on generating more realistic synthetic data to expand the utility of the supervised approach.
-
-​
-A useful tool for energy disaggregation is the non-intrusive load-monitoring toolkit, or NILMTK.
-We should look at this when we start coding!
 
 
+%TODO: Find paper that references difficulty of adapting to new house
+**May not be correct** Due to the diversity of devices, both which are used in a house and their power consumption, it can be difficult to generalize from one house to another.
 
-\section{Literature Review/Lay of the Land}
+%TODO: List of a few papers that require this. Include all that we are referencing at other spots and that do this
+Many existing methodologies for NILM require the aggregated energy usage for a house and the energy usage for each device of interest during the same time period \cite{Kelly, Cicchetti}. 
+%TODO: Find paper that references this. Also, sentence should be better
+However, recording the energy usage for each device is difficult, due to the requirement of adding sensors to each device.
+With the increase in the Internet of Things, we expect that more devices will be able to indicate when they are using power to the server.
+It is, however, unlikely that the necessary **tooling** to record the actual power used will not be installed into these devices.
+Thus, the existing methodologies would not be able to benefit from these changes in devices.
+
+
+%TODO: This needs to clearly outline that we are NOT learning on the specific house, to handle future data, but are instead preprocessing for the training data
+In this report, we investigate different methods for taking the aggregated energy usage and information for when devices are on and generate information about how much power each device was using.
+
+
+%TODO: What did we accomplish
+
+\section{Related Work}
+
+%NOTE: Should focus on research relevant to ours. Don't know how much there is.
+%TODO: Should also outline one or two unsupervised approaches.
+There have not been any studies of NIML using information about what time points each device was on at.
+%TODO: Cite all of these
+There have been supervised approaches using the disaggregated energy\cite{} or energy signatures \cite{} for each device.
+Some unsupervised approaches, also exist that only use the aggregated energy of the overall house.
+%TODO: Mention something about related approaches or similar ideas?
 
 \subsection{Independent Component Analysis}
-​
-Suppose you are at a cocktail party, but you've forgotten how to hear someones voice.
-You observe sound waves $X^1_t, \dots, X^m_t$, at each time $t$, which you know to be a linear combination of some sound effects, $A_t, B_t, \dots, E_t$.
-That is,
-%
-\[ X_t^k = a A_t + b B_t + \dots + e E_t \]
-%
-for some scalars $a_i$.
-The {\bf cocktail party problem} asks you to estimate the sound waves, observing only the sound wave $X_t$.
-​
-Independent component analysis assumes the $A_t, \dots, E_t$ are statistically independent, have non-Gaussian distributions, and we have enough data to invert the `mixing matrix' of coefficients.
-Through this, it attempts to maximize nongaussianity. %TODO: Better word?
-​
-In NILM, the $X_t$ represents the power being used in a house at a certain time.
-We may assume the coefficients $a, b, \dots, e$ are binary (used or not used in a house).
-Unfortunately, the power signals $A_t, B_t, \dots, E_t$ are not statistically independent in this task (one may use two different devices at the same time, always put the kettle on when using the toaster, etc.), so we believe that applying independent component analysis will not achieve significantly better results to existing methods.
-Though it may in practice be possible to reconstruct independent combinations of $A_t$, to be used as an additional feature into a neural network, we do not have plans to implement this at this time. \cite{Aapo}
+
+%TODO: Soundwaves is the wrong word
+To use ICA, we would need to assume that the signature for each device is statistically independent, which is unfortunately not true.
+%TODO: Find citation for this
+As well, ICA performs best when there are multiple different 'sound waves', but with NILM there would only be the power being used by the house for each timestep.
+Thus, we believe that applying independent component analysis will not achieve significantly better results to existing methods.
 
 %TODO: Should these be the approach name, or something else?
-\subsection{Hidden Markov Models}
+\subsection{Supervised Approaches}
 
-%TODO: I know this is not the right way to do it
-In his masters thesis, Chichetti \cite{Cicchetti} examined using Parsons Method for NILM \cite{Cicchetti}.
+%TODO: Citations for this
+These approaches often use Hidden Markov Models, or a variant like dHMM, or using a neural network to estimate the power consumption for each device.
+
+One approach that uses some form of HMMs is Parsons Method for NILM \cite{Cicchetti}.
 This method uses one difference Hidden Markov Model (dHMM) per device to describe its consumption and figure out at what time it was active.
+%TODO: Make sure is correct, and possibly cite this
 A dHMM is very similar to an HMM, but it has an additional hidden variables for the difference from the previous to current state.
-This approach is semi-supervised, because it does need the disaggregated data for training.
-Instead, it uses prior knowledge about previous appliance signatures.
+While this approach does not require the disaggreated energy signature per device, it does require prior knowledge in the form of 
 
-%TODO: How well did it do?
-
-\subsection{Basic Neural Networks}
-
+There have also been many teams that use neural networks to disaggregate the power consumption. 
 Kelly and Knottenbelt identify that often signal reconstruction is not integral to applications.
 Therefore, they take their task to be identification of a begin time, end time, and overall energy usage of a specific device, during the first cycle it is used.
 They attempt to solve the problem via an amalgamation of Constitutional, Feed forward, and recurrent neural nets, combined with a denoising error\footnote{Viewing other data as `noise' may also cut out the holistic approach to the problem, removing the problem of global consistency.} and training on each device individually\footnote{This may ignore inherent relationships between different devices (though perhaps the neural networks account for this).
@@ -113,7 +115,7 @@ One neural network is trained per target appliance, based on real data and synth
 
 **Another interesting aspect of the paper was how they used Denoising Autoencoders.
 ​
-\subsection{Deep Recurrent Neural Networks}
+\subsubsection{Deep Recurrent Neural Networks}
 ​
 A standard recurrent neural network with $t$ layers assumes a statistical model is parameterized by matrices $A,B$ and $C$ and a bias vector $b$, where if $x = (x_1, \dots, x_n)$ is observed, then our output $y$ is generated iteratively by the equations
 %
@@ -140,18 +142,12 @@ What's nice about these types of neural networks is that we can analyze them as 
 
 Used in \cite{Kelly}.
 
-\subsection{Denoising Autoencoders}
+\subsubsection{Baranski's Algorithm}
+
+\subsubsection{Denoising Autoencoders}
 
 Again, used in \cite{Kelly}.
 %TODO: What is good/bad about them
-​
-\subsection{Speech Recognition and Pre-training}
-​
-Restricted Boltzmann Machines have been applied to Speech Recognition neural-network pre-training (Application of Pretrained Deep
-Neural Networks to Large
-Vocabulary Conversational Speech
-Recognition, Jaitly, Nguyen, Senior, Vanhocke), (Dahl et al., 2012, Mohamed et al., 2012).
-
 
 
 
@@ -167,22 +163,33 @@ Instead, we assume to instead have accurate information about when each device i
 Where many devices are connected to the internet, and could thus provide information about when they are active.
 %TODO: Get paper for this?
 
-Our performance task is:
+\subsection{Task}
 
-Given the total power usage of a home over time and knowledge of at what times each device was on, can we decompose the aggregated power signal into the power signal for each device?
 
-OR:
 
-Given the total power usage of a home over time, can we determine when each device was active?
+\subsection{Evaluation}
 
-How will we evaluate how well we have done?
+%TODO: Whatever evaluation function to see how well the neural network does after training.
+%May even want to use two or more, to see if they work better in different circumstances
+
+Then, we will compare the results for the different trained denoising autoencoder neural nets, based on the data that we preprocessed.
+
+Will train and evaluate on the devices %TODO: write out devices
 
 
 %TODO: Example?
 
-To achieve the performance task, we will learn learn a model to recover the individual device signal for each class of device from the total power usage of several homes and information about when each class of device was on.
+
 
 %TODO: Example?
+
+\section{Discussion}
+
+\subsection{Future work and Extension}
+
+Extension to Baranski's Algorithm?.
+
+HMM depending on how well that goes
 
 % Generate the bibliography.
 \bibliography{biblio}
