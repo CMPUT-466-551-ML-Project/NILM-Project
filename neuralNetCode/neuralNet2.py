@@ -61,15 +61,18 @@ for device in selectedDevices:
         # Standardize the input and target
         average = np.average(xWindow)
         for i in range(device.windowSize):
-            yWindow[i] = np.array(yWindow[i] / device.maxPowerDemand)
+            yWindow[i] = yWindow[i] / device.maxPowerDemand
             xWindow[i] = xWindow[i] - average
-            xWindow[i] = np.array(xWindow[i] / std)
+            xWindow[i] = xWindow[i] / std
         
         xWindows.append(xWindow)
         yWindows.append(yWindow)
         
     xWindows = np.array(xWindows)
     yWindows = np.array(yWindows)
+    xWindows.shape = (len(xWindows), device.windowSize, 1)
+    yWindows.shape = (len(yWindows), device.windowSize, 1)
+    
     neuralNet = DenoisingAutoencoder(device.windowSize)
     neuralNet.train(xWindows, yWindows)
     neuralNets.append(neuralNet)
