@@ -76,3 +76,21 @@ class TimeSeries(object):
         indices = np.in1d(self.times, ts.times, assume_unique=True)
 
         self.array = self.array[indices]
+
+    def pad(self):
+        """
+        Pad the timeseries data so that there are no missing values. We fill in
+        missing power values using the previous power value in the series.
+        """
+        width = self.times[-1] - self.times[0] + 1
+        padded_array = np.rec.array((0, 2), dtype=[('time', np.uint32),
+                                                   ('power', np.float32)])
+        padded_array.resize(width)
+
+        cnt = 0
+        for i in xrange(len(self.times)-1):
+            for t in xrange(self.times[i], self.times[i+1]):
+                padded_array[cnt] = (np.uint32(t), self.powers[i])
+                cnt += 1
+
+        self.array = padded_array
