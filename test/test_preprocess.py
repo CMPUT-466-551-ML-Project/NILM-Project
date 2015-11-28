@@ -12,9 +12,9 @@ from nilm.preprocess import solve_constant_energy
 from nilm.timeseries import TimeSeries
 
 
-class TestPreprocess(unittest.TestCase):
+class TestPreprocessConstantEnergy(unittest.TestCase):
     """
-    Test the evaluation functions.
+    Test the constant energy preprocessing function.
     """
     def test_constant_energy_identity(self):
         """Test constant energy preprocessing on the identity matrix."""
