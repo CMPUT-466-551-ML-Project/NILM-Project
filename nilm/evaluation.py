@@ -35,3 +35,8 @@ def f_score(test, truth, threshold=np.float32(0.0)):
 def mean_squared_error(test, truth):
     """Calculate the mean squared error between the two arrays."""
     return ((test - truth) ** 2).mean(axis=None)
+
+
+def root_mean_squared_error(test, truth):
+    """Calculate the root mean squared error between the two arrays."""
+    return np.sqrt(mean_squared_error(test, truth))
