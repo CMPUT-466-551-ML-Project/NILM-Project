@@ -107,29 +107,3 @@ def confidence_estimator(time_series, on_off, devices, data_sorter):
     calculated_means[choice] = mean_choice
 
     return calculated_means
-
-
-def level_estimate(time_series, on_off, devices):
-    """
-    Obtains estimates of time series based on immediate changes in energy
-    levels corresponding to a device being switched on while other devices do
-    not change.  In this code, the time in the time_series and on_off
-    indicators is assumed to be an integer list.
-    """
-
-    estimate = {}
-    while len(estimate.keys()) < len(devices):
-        data = get_changed_data(time_series, on_off, devices)
-
-        for device in devices:
-            if len(data[device]) != 0:
-                if device not in estimate.keys():
-                    estimate[device] += data[device]
-
-                # Turn off device after we have learnt it
-                for i in range(1, time_series.keys()):
-                    time_series[i] = (time_series[i] -
-                                      on_off[i, device]*estimate[device])
-                    on_off[i, device] = False
-
-    return estimate
