@@ -109,18 +109,6 @@ def confidence_estimator(time_series, on_off, devices, data_sorter):
     return calculated_means
 
 
-TIME_SERIES = {1:5, 2:2, 3:4}
-ON_OFF = {(1, 'a'): True, (2, 'a'): True, (3, 'a'): True, (1, 'b'): False,
-          (2, 'b'): True, (3, 'b'): False}
-DEVICES = ['a', 'b']
-
-print "devices: %s" % DEVICES
-print "series %s" % TIME_SERIES
-print "I/O %s" % ON_OFF
-print confidence_estimator(TIME_SERIES, ON_OFF, DEVICES, sort_data)
-print confidence_estimator(TIME_SERIES, ON_OFF, DEVICES, get_changed_data)
-
-
 def level_estimate(time_series, on_off, devices):
     """
     Obtains estimates of time series based on immediate changes in energy
