@@ -94,3 +94,30 @@ class TimeSeries(object):
                 cnt += 1
 
         self.array = padded_array
+
+    def activations(self, threshold=np.float32(0.0)):
+        """
+        Returns the device activations as a list of [start, end) index tuples.
+        We assume that a device turning on and off is an entire activation.
+        """
+        activations = []
+
+        ind = self.indicators(threshold)
+        in_interval = ind[0]
+
+        if in_interval:
+            start = 0
+
+        for i in xrange(len(ind)):
+            if not ind[i] and in_interval:
+                in_interval = False
+                activations.append((start, i))
+
+            if ind[i] and not in_interval:
+                in_interval = True
+                start = i
+
+        if in_interval:
+            activations.append((start, len(ind)))
+
+        return activations
