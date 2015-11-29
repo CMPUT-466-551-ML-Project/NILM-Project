@@ -56,7 +56,7 @@ class DenoisingAutoencoder(object):
         yaml_string = self.model.to_yaml()
         path = os.path.abspath(path)
 
-        with open(path, 'r') as fd:
+        with open(path, 'w') as fd:
             fd.write(yaml_string)
 
     def save_weights(self, path):
