@@ -8,9 +8,8 @@ import unittest
 
 import numpy as np
 
-from nilm.confidence_estimator import (confidence_estimator, get_changed_data,
-                                       sort_data)
-from nilm.preprocess import solve_constant_energy
+from nilm.preprocess import (confidence_estimator, get_changed_data,
+                             solve_constant_energy, sort_data)
 from nilm.timeseries import TimeSeries
 
 
