@@ -14,6 +14,32 @@ def main():
     logging.basicConfig(filename=args.log, level=logging.DEBUG)
     log = logging.getLogger(__name__)
 
+    device_files = [os.path.abspath(os.path.join(args.dir, p)) for p in
+                    os.listdir(args.dir)]
+    for dev_path in args.devices:
+        try:
+            device_files.remove(os.path.abspath(dev_path))
+        except ValueError:
+            log.error('Unable to find device file %s under %s' % (dev_path,
+                                                                  args.dir))
+
+    try:
+        device_files.remove(os.path.abspath(args.aggregated))
+    except ValueError:
+        log.warning('Unable to find aggregated power file %s under %s' %
+                    (args.aggregated, args.dir))
+
+    agg_data = TimeSeries(path=args.aggregated)
+    agg_data.pad()
+
+    for dev_path in device_files:
+        dev_data = TimeSeries(path=dev_path)
+        dev_data.pad()
+
+        agg_data -= dev_data
+
+    agg_data.write(args.out)
+
     return 0
 
 
