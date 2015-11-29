@@ -124,3 +124,11 @@ class TimeSeries(object):
             activations.append((start, len(ind)))
 
         return activations
+
+    def write(self, path):
+        """
+        Write the timeseries data to the given path.
+        """
+        with open(path, 'w') as fd:
+            for i in self.array:
+                fd.write('%s %s\n' % (i[0], i[1]))
