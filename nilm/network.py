@@ -62,7 +62,7 @@ class DenoisingAutoencoder(object):
     def save_weights(self, path):
         """Save the network weights to the given path in HDF5."""
         path = os.path.abspath(path)
-        self.model.save_weights(path)
+        self.model.save_weights(path, overwrite=True)
 
     def load_model(self, model_path):
         """ Load the network model from the given path."""
