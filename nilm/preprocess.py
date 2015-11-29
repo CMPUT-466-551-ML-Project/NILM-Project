@@ -32,7 +32,7 @@ def solve_constant_energy(aggregated, *device_activations):
     return (solution.x, error)
 
 def confidence(data):
-    """ A Heuristic for how usable our current estimate of data is """
+    """A Heuristic for how usable our current estimate of data is."""
 
     if len(data) == 0:
         return np.inf
@@ -70,7 +70,8 @@ def sort_data(aggregated, devices, indicator_matrix):
 
 def changed_devices(devices, time_idx, indicator_matrix):
     """
-    Returns all devices whose I/O state changed between at a single time period.
+    Returns all devices whose I/O state changed between at the given time
+    period.
     """
     return [d for d in xrange(len(devices)) if
             (indicator_matrix[time_idx, d] != indicator_matrix[time_idx-1, d])]
@@ -96,20 +97,17 @@ def get_changed_data(aggregated, devices, indicator_matrix):
 
 def confidence_estimator(aggregated, devices, indicator_matrix, data_sorter):
     """
-    Given a time series of data (a dictionary mapping time to power), with
-    on/off indicators (dictionary of (time, device) pairs mapping to power,
-    computes the best time estimators by the confidence interval subtraction
-    method.  Data obtained for the confidence interval measure is obtained via
-    the data_sorter function, which is currently implemented to either take
-    samples from immediate changes in power from a single device switching on
-    (get_changed_data) or taking samples from when a single device is on
-    (sort_data).  The program assumes that the time data between the series and
-    indicators is the same, but does not assume how it is distributed. This
-    programs assumes that every device will be able to be calculated at some
-    point. If not, this function is not be able to estimate the programs
-    accurately.  get_changed_data assumes that the data is linearly ordered
-    (time is integer valued), whereas sort_data can have any time
-    representation.
+    Given a time series of aggregated data, time series of devices, and a matrix
+    of on/off indicators, computes the best power estimators by the confidence
+    interval subtraction method.  Data obtained for the confidence interval
+    measure is obtained via the data_sorter function, which is currently
+    implemented to either take samples from immediate changes in power from a
+    single device switching on (get_changed_data) or taking samples from when a
+    single device is on (sort_data). The program assumes that the time data
+    between the series and indicators is the same, but does not assume how it
+    is distributed. This function assumes that every device will be able to be
+    calculated at some point. If not, this function is not able to estimate the
+    programs accurately.
     """
     if len(devices) == 0:
         return {}
