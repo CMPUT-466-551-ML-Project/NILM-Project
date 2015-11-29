@@ -95,7 +95,8 @@ def get_changed_data(aggregated, devices, indicator_matrix):
     return np.array([np.array(d) for d in data])
 
 
-def confidence_estimator(aggregated, devices, indicator_matrix, data_sorter):
+def confidence_estimator(aggregated, devices, data_sorter,
+                         threshold=np.float32(0.0)):
     """
     Given a time series of aggregated data, time series of devices, and a matrix
     of on/off indicators, computes the best power estimators by the confidence
@@ -111,6 +112,9 @@ def confidence_estimator(aggregated, devices, indicator_matrix, data_sorter):
     """
     if len(devices) == 0:
         return {}
+
+    indicator_matrix = np.column_stack([d.indicators(threshold) for
+                                        d in devices])
 
     data = data_sorter(aggregated, devices, indicator_matrix)
 
@@ -128,9 +132,8 @@ def confidence_estimator(aggregated, devices, indicator_matrix, data_sorter):
     new_aggregated = aggregated - indicator_matrix[:, choice] * mean_choice
 
     new_devices = devices[:choice] + devices[choice+1:]
-    new_indicators = np.delete(indicator_matrix, choice, 1)
     calculated_means = confidence_estimator(new_aggregated, new_devices,
-                                            new_indicators, data_sorter)
+                                            data_sorter)
     calculated_means[devices[choice].name] = mean_choice
 
     return calculated_means

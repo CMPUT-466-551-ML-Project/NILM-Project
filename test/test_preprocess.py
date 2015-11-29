@@ -103,13 +103,10 @@ class TestPreprocessConfidenceEstimator(unittest.TestCase):
 
         self.devices = [device1, device2]
 
-        activations = [d.indicators(np.float32(0.0)) for d in self.devices]
-        self.indicator_matrix = np.column_stack(activations)
-
     def test_sort_data(self):
         """Test the estimator by finding intervals of a single active device."""
         estimate = confidence_estimator(self.aggregate.powers, self.devices,
-                                        self.indicator_matrix, sort_data)
+                                        sort_data)
         estimate_test = {'a': np.float32(4.5), 'b': np.float32(-2.5)}
         self.assertEqual(estimate, estimate_test)
 
@@ -119,6 +116,6 @@ class TestPreprocessConfidenceEstimator(unittest.TestCase):
         device changing state.
         """
         estimate = confidence_estimator(self.aggregate.powers, self.devices,
-                                        self.indicator_matrix, get_changed_data)
+                                        get_changed_data)
         estimate_test = {'a': np.float(0.0), 'b': np.float(2.5)}
         self.assertEqual(estimate, estimate_test)
