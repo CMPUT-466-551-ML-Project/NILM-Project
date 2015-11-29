@@ -16,6 +16,7 @@ class TimeSeries(object):
         if path is not None:
             self.array = np.genfromtxt(path, dtype=[('time', np.uint32),
                                                     ('power', np.float32)])
+            self.array = np.sort(self.array)
         else:
             self.array = np.rec.array((0, 2), dtype=[('time', np.uint32),
                                                      ('power', np.float32)])
