@@ -21,7 +21,7 @@ class TestTimeSeries(unittest.TestCase):
     """
     def test_creation(self):
         """Test TimeSeries creation from a file."""
-        ts_file = TimeSeries(DATA_PATH)
+        ts_file = TimeSeries(path=DATA_PATH)
 
         ts_test = TimeSeries()
         ts_test.array.resize(3)

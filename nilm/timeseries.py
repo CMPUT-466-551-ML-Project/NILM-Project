@@ -11,7 +11,8 @@ class TimeSeries(object):
     """
     Object for holding, manipulating, and loading power timeseries data.
     """
-    def __init__(self, path=None):
+    def __init__(self, name='', path=None):
+        self.name = name
         if path is not None:
             self.array = np.genfromtxt(path, dtype=[('time', np.uint32),
                                                     ('power', np.float32)])
