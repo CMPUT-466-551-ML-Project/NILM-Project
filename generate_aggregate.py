@@ -19,18 +19,26 @@ def main():
     for dev_path in args.devices:
         try:
             device_files.remove(os.path.abspath(dev_path))
+            dev_data = TimeSeries(os.path.basename(dev_path).split('.')[0],
+                                  path=os.path.abspath(dev_path))
+            dev_data.pad()
+            dev_data.write(os.path.join(args.out, dev_data.name + '.dat'))
         except ValueError:
             log.error('Unable to find device file %s under %s' % (dev_path,
                                                                   args.dir))
 
-    try:
-        device_files.remove(os.path.abspath(args.aggregated))
-    except ValueError:
-        log.warning('Unable to find aggregated power file %s under %s' %
-                    (args.aggregated, args.dir))
+    for agg_path in args.aggregated:
+        try:
+            device_files.remove(os.path.abspath(agg_path))
+        except ValueError:
+            log.warning('Unable to find aggregated power file %s under %s' %
+                        (agg_path, args.dir))
 
-    agg_data = TimeSeries(path=args.aggregated)
-    agg_data.pad()
+    agg_data = TimeSeries(path=os.path.abspath(args.aggregated[0]))
+    for agg_path in args.aggregated[1:]:
+        agg_in = TimeSeries(path=os.path.abspath(agg_path))
+        agg_in.pad()
+        agg_data += agg_in
 
     for dev_path in device_files:
         dev_data = TimeSeries(path=dev_path)
@@ -38,7 +46,7 @@ def main():
 
         agg_data -= dev_data
 
-    agg_data.write(args.out)
+    agg_data.write(os.path.join(args.out, 'aggregate.dat'))
 
     return 0
 
@@ -46,8 +54,8 @@ def main():
 def get_parser():
     parser = argparse.ArgumentParser(description='Create a new aggregated power'
                                      ' file.')
-    parser.add_argument('-o', '--out', required=True, help='Output file.')
-    parser.add_argument('-a', '--aggregated', required=True,
+    parser.add_argument('-o', '--out', required=True, help='Output directory.')
+    parser.add_argument('-a', '--aggregated', nargs='+', required=True,
                         help='Aggregated power usage file.')
     parser.add_argument('-d', '--dir', required=True,
                         help='Directory containing device files.')
