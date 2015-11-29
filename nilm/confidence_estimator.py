@@ -1,69 +1,72 @@
 import itertools
 
+import numpy as np
+
 
 def confidence(data):
     """ A Heuristic for how usable our current estimate of data is """
 
     if len(data) == 0:
-        return float("infinity")
+        return np.inf
 
-    mean = sum(data)/len(data)
-    variance = sum((x - mean)**2 for x in data)/len(data)
+    mean = data.mean(axis=None)
+    variance = ((data - mean) ** 2).mean(axis=None)
 
-    return variance/len(data)
+    return variance / len(data)
 
 
-def only_device(device, on_off, time, devices):
+def only_device(device_idx, time_idx, indicator_matrix):
     """
     Returns True if the device is the only device active at a certain time.
     """
+    devices_on = np.where(indicator_matrix[time_idx, :])[0]
 
-    devices_on = {x for x in devices if on_off[(time, x)]}
-
-    return (device in devices_on) and (len(devices_on) == 1)
+    return (device_idx in devices_on) and (len(devices_on) == 1)
 
 
-def sort_data(devices, time_series, on_off):
+def sort_data(aggregated, devices, indicator_matrix):
     """
     Generates usable samples for each device, where that
     device was the only device active at a single time period.
     """
 
-    data = {x:[] for x in devices}
+    data = [[] for _ in xrange(len(devices))]
 
-    for (device, time) in itertools.product(devices, time_series.keys()):
-        if only_device(device, on_off, time, devices):
-            data[device].append(time_series[time])
+    for d in xrange(len(devices)):
+        for t in xrange(len(devices[d].times)):
+            if only_device(d, t, indicator_matrix):
+                data[d].append(aggregated[t])
 
-    return data
+    return np.array([np.array(d) for d in data])
 
 
-def changed_devices(devices, on_off, i):
+def changed_devices(devices, time_idx, indicator_matrix):
     """
-    Returns all devices whose I/O state changed between at a single time period
-    i.
+    Returns all devices whose I/O state changed between at a single time period.
     """
-    return [x for x in devices if on_off[i, x] != on_off[i-1, x]]
+    return [d for d in xrange(len(devices)) if
+            (indicator_matrix[time_idx, d] != indicator_matrix[time_idx-1, d])]
 
 
-def get_changed_data(devices, time_series, on_off):
+def get_changed_data(aggregated, devices, indicator_matrix):
     """
     Generates data for each device by the step inference method, calculating
     the change in energy usage as a single device changes.
     """
 
-    data = {x:[] for x in devices}
+    data = [[] for _ in xrange(len(devices))]
 
-    for i in range(2, len(time_series)):
-        changed = changed_devices(devices, on_off, i)
+    for t in xrange(1, len(devices[0].times)):
+        changed = changed_devices(devices, t, indicator_matrix)
 
         if len(changed) == 1:
-            data[changed[0]].append(time_series[i] - time_series[i-1])
+            power_diff = abs(aggregated[t] - aggregated[t-1])
+            data[changed[0]].append(power_diff)
 
-    return data
+    return np.array([np.array(d) for d in data])
 
 
-def confidence_estimator(time_series, on_off, devices, data_sorter):
+def confidence_estimator(aggregated, devices, indicator_matrix, data_sorter):
     """
     Given a time series of data (a dictionary mapping time to power), with
     on/off indicators (dictionary of (time, device) pairs mapping to power,
@@ -80,30 +83,28 @@ def confidence_estimator(time_series, on_off, devices, data_sorter):
     (time is integer valued), whereas sort_data can have any time
     representation.
     """
-
     if len(devices) == 0:
         return {}
 
-    data = data_sorter(devices, time_series, on_off)
+    data = data_sorter(aggregated, devices, indicator_matrix)
 
     # Pick data to remove according to some heuristic
     heuristic = lambda x: confidence(data[x])
-    choice = min(devices, key=heuristic)
+    choice = min(range(len(devices)), key=heuristic)
 
-    if heuristic(choice) == float('infinity'):
+    if heuristic(choice) == np.inf:
         # Need to pick a better approach, try
         # generating more data using level technique.
-        print "Not enough data"
-        mean_choice = 0
+        mean_choice = np.float32(0.0)
     else:
-        mean_choice = sum(data[choice])/len(data)
+        mean_choice = data[choice].mean(axis=None)
 
-    new_devices = [x for x in devices if x is not choice]
-    new_series = {time: time_series[time] - on_off[time, choice]*mean_choice
-                  for time in time_series.keys()}
+    new_aggregated = aggregated - indicator_matrix[:, choice] * mean_choice
 
-    calculated_means = confidence_estimator(new_series, on_off, new_devices,
-                                            data_sorter)
-    calculated_means[choice] = mean_choice
+    new_devices = devices[:choice] + devices[choice+1:]
+    new_indicators = np.delete(indicator_matrix, choice, 1)
+    calculated_means = confidence_estimator(new_aggregated, new_devices,
+                                            new_indicators, data_sorter)
+    calculated_means[devices[choice].name] = mean_choice
 
     return calculated_means

@@ -84,16 +84,34 @@ class TestPreprocessConfidenceEstimator(unittest.TestCase):
 
     def setUp(self):
         """Set up the data  needed for the confidence estimator."""
-        self.time_series = {1:5, 2:2, 3:4}
-        self.on_off = {(1, 'a'): True, (2, 'a'): True, (3, 'a'): True,
-                       (1, 'b'): False, (2, 'b'): True, (3, 'b'): False}
-        self.devices = ['a', 'b']
+        self.aggregate = TimeSeries()
+        self.aggregate.array.resize(3)
+        self.aggregate.array[0] = (np.uint32(1), np.float32(5.0))
+        self.aggregate.array[1] = (np.uint32(2), np.float32(2.0))
+        self.aggregate.array[2] = (np.uint32(3), np.float32(4.0))
+
+        device1 = TimeSeries('a')
+        device1.array.resize(3)
+        device1.array[0] = (np.uint32(1), np.float32(5.0))
+        device1.array[1] = (np.uint32(2), np.float32(5.0))
+        device1.array[2] = (np.uint32(3), np.float32(5.0))
+
+        device2 = TimeSeries('b')
+        device2.array.resize(3)
+        device2.array[0] = (np.uint32(1), np.float32(0.0))
+        device2.array[1] = (np.uint32(2), np.float32(5.0))
+        device2.array[2] = (np.uint32(3), np.float32(0.0))
+
+        self.devices = [device1, device2]
+
+        activations = [d.indicators(np.float32(0.0)) for d in self.devices]
+        self.indicator_matrix = np.column_stack(activations)
 
     def test_sort_data(self):
         """Test the estimator by finding intervals of a single active device."""
-        estimate = confidence_estimator(self.time_series, self.on_off,
-                                        self.devices, sort_data)
-        estimate_test = {'a': 4, 'b': -2}
+        estimate = confidence_estimator(self.aggregate.powers, self.devices,
+                                        self.indicator_matrix, sort_data)
+        estimate_test = {'a': np.float32(4.5), 'b': np.float32(-2.5)}
         self.assertEqual(estimate, estimate_test)
 
     def test_get_changed_data(self):
@@ -101,7 +119,7 @@ class TestPreprocessConfidenceEstimator(unittest.TestCase):
         Test the estimator by looking for immediate power changes from a single
         device changing state.
         """
-        estimate = confidence_estimator(self.time_series, self.on_off,
-                                        self.devices, get_changed_data)
-        estimate_test = {'a': 0, 'b': -2}
+        estimate = confidence_estimator(self.aggregate.powers, self.devices,
+                                        self.indicator_matrix, get_changed_data)
+        estimate_test = {'a': np.float(0.0), 'b': np.float(2.5)}
         self.assertEqual(estimate, estimate_test)
