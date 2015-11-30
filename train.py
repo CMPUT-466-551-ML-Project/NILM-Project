@@ -63,6 +63,7 @@ def main():
         device_files.remove(agg_path)
 
     agg_data = TimeSeries(path=agg_path)
+    agg_data.array = agg_data.array[0:len(agg_data.array)/5*4]
 
     device_in = []
     for dev_path in device_files:
