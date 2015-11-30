@@ -78,8 +78,14 @@ def main():
     for dev in device_in:
         log.info('Training: %s' % dev.name)
         activations = dev.activations(np.float32(25.0))
+
+        if len(activations) == 0:
+            log.info('No activations found.')
+            continue
+
         window_size = sum([a[1] - a[0] for a in activations])/len(activations)
         length = min(len(dev.array), len(agg_data.array))
+
         log.info('Window size: %s' % window_size)
         log.info('Series length: %s' % length)
 
@@ -90,15 +96,15 @@ def main():
         std_dev = np.std(np.random.choice(dev.powers, 10000))
         max_power = dev.powers.max()
         for i in xrange(0, length - window_size + 1, window_size):
-            input_window = dev.powers[i:i+window_size]
-            label_window = np.divide(agg_data.powers[i:i+window_size],
+            label_window = dev.powers[i:i+window_size]
+            input_window = np.divide(agg_data.powers[i:i+window_size],
                                      max_power)
 
             mean = input_window.mean(axis=None)
-            input_window = np.divide(np.subtract(input_window, mean), std_dev)
+            label_window = np.divide(np.subtract(input_window, mean), std_dev)
 
-            input_windows.append(input_window)
-            label_windows.append(label_window)
+            label_windows.append(input_window)
+            input_windows.append(label_window)
 
         input_windows = np.array(input_windows)
         label_windows = np.array(label_windows)
