@@ -8,14 +8,53 @@ import sys
 import numpy as np
 
 from nilm.network import DenoisingAutoencoder
+from nilm.preprocess import (confidence_estimator, get_changed_data,
+                             solve_constant_energy, sort_data)
 from nilm.timeseries import TimeSeries
+
+
+log = logging.getLogger(__name__)
+
+
+def apply_preprocess(aggregated, devices, method, threshold=np.float32(0.0)):
+    """
+    Apply the given preprocessing method to the devices.
+    """
+    if method == 'raw':
+        return
+
+    indicators = [d.indicators(threshold) for d in devices]
+
+    if method == 'constant':
+        (energies, _) = solve_constant_energy(aggregated, indicators)
+
+        for (e, d) in zip(energies, devices):
+            log.info('Setting constant energy %s for device %s.' % (e, d.name))
+            d.powers = e * d.indicators(np.float32(10))
+
+    elif method == 'interval':
+        energy_dict = confidence_estimator(aggregated, devices, sort_data,
+                                           threshold)
+
+        for d in devices:
+            log.info('Setting constant energy %s for device %s.' %
+                     (energy_dict[d.name], d.name))
+            d.powers = energy_dict[d.name] * d.indicators(np.float32(10))
+
+    elif method == 'edge':
+        energy_dict = confidence_estimator(aggregated, devices,
+                                           get_changed_data, threshold)
+
+        for d in devices:
+            log.info('Setting constant energy %s for device %s.' %
+                     (energy_dict[d.name], d.name))
+            d.powers = energy_dict[d.name] * d.indicators(np.float32(10))
 
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
     logging.basicConfig(filename=args.log, level=logging.DEBUG)
-    log = logging.getLogger(__name__)
 
     device_files = [os.path.abspath(os.path.join(args.dir, p)) for p in
                     os.listdir(args.dir)]
@@ -32,9 +71,12 @@ def main():
         dev.intersect(agg_data)
         device_in.append(dev)
 
+    apply_preprocess(agg_data.powers, device_in, args.preprocess,
+                     np.float32(25.00))
+
     for dev in device_in:
         log.info('Training: %s' % dev.name)
-        activations = dev.activations(np.float32(10.0))
+        activations = dev.activations(np.float32(25.0))
         window_size = sum([a[1] - a[0] for a in activations])/len(activations)
         length = min(len(dev.array), len(agg_data.array))
         log.info('Window size: %s' % window_size)
@@ -87,6 +129,10 @@ def get_parser():
                         help='Directory containing device files.')
     parser.add_argument('-l', '--log', default='/tmp/agg.log',
                         help='File to write log to.')
+    parser.add_argument('-p', '--preprocess',
+                        choices=['raw','constant','interval','edge'],
+                        default='raw',
+                        help='Which preprocessing algorithm to use.')
     return parser
 
 
