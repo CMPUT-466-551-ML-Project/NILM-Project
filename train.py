@@ -54,7 +54,8 @@ def apply_preprocess(aggregated, devices, method, threshold=np.float32(0.0)):
 def main():
     parser = get_parser()
     args = parser.parse_args()
-    logging.basicConfig(filename=args.log, level=logging.DEBUG)
+    format = '%(asctime)s %(message)s'
+    logging.basicConfig(filename=args.log, level=logging.DEBUG, format=format)
 
     device_files = [os.path.abspath(os.path.join(args.dir, p)) for p in
                     os.listdir(args.dir)]
