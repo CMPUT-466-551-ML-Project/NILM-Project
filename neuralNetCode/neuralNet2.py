@@ -10,17 +10,18 @@ class DenoisingAutoencoder(object):
     
     def __init__(self, windowSize):
         self.windowSize = windowSize
-        self.size = (windowSize - 3) * 8
+        num_filters = 8
+        self.size = (windowSize - 3) * num_filters
         self.model = Sequential()
         
-        self.model.add(Convolution1D(8, 4, 'uniform', 'linear', border_mode='valid', 
+        self.model.add(Convolution1D(num_filters, 4, 'uniform', 'linear', border_mode='valid', 
                                      subsample_length=1, input_dim=1, input_length=windowSize))
         self.model.add(Flatten())
         
         self.model.add(Dense(output_dim=self.size, init='uniform', activation='relu'))
         self.model.add(Dense(128, 'uniform', 'relu'))
         self.model.add(Dense(self.size, 'uniform', 'relu'))
-        self.model.add(Reshape(dims=(self.size, 1)))
+        self.model.add(Reshape(dims=(self.windowSize - 3, num_filters)))
         self.model.add(Convolution1D(1, 4, 'uniform', 'linear', border_mode='valid',
                                      subsample_length=1, input_dim=1, input_length=self.size))
         
@@ -57,7 +58,7 @@ for device in selectedDevices:
     
     for j in range(0, length - device.windowSize + 1, stepSize):
         xWindow = x[j:j+device.windowSize]
-        yWindow = y[j:j+device.windowSize]
+        yWindow = y[j + 3:j+device.windowSize - 3]
         # Standardize the input and target
         average = np.average(xWindow)
         for i in range(device.windowSize):
