@@ -93,8 +93,8 @@ def main():
         log.info('Window size: %s' % window_size)
         log.info('Series length: %s' % length)
 
-        input_windows = []
-        label_windows = []
+        agg_windows = []
+        dev_windows = []
 
         log.info('Computing windows...')
         std_dev = np.std(np.random.choice(dev.powers, 10000))
@@ -103,24 +103,23 @@ def main():
         log.info('Std Dev: %s' % std_dev)
         log.info('Max Power: %s' % max_power)
         for i in xrange(0, length - window_size + 1, window_size):
-            label_window = dev.powers[i:i+window_size]
-            input_window = np.divide(agg_data.powers[i:i+window_size],
-                                     max_power)
+            dev_window = np.divide(dev.powers[i:i+window_size], max_power)
+            agg_window = agg_data.powers[i:i+window_size]
 
-            mean = input_window.mean(axis=None)
-            label_window = np.divide(np.subtract(input_window, mean), std_dev)
+            mean = agg_window.mean(axis=None)
+            agg_window = np.divide(np.subtract(agg_window, mean), std_dev)
 
-            label_windows.append(input_window)
-            input_windows.append(label_window)
+            dev_windows.append(agg_window)
+            agg_windows.append(dev_window)
 
-        input_windows = np.array(input_windows)
-        label_windows = np.array(label_windows)
-        input_windows.shape = (len(input_windows), window_size, 1)
-        label_windows.shape = (len(label_windows), window_size, 1)
+        agg_windows = np.array(agg_windows)
+        dev_windows = np.array(dev_windows)
+        agg_windows.shape = (len(agg_windows), window_size, 1)
+        dev_windows.shape = (len(dev_windows), window_size, 1)
 
         log.info('Training network...')
         network = DenoisingAutoencoder(window_size)
-        network.train(input_windows, label_windows)
+        network.train(agg_windows, dev_windows)
 
         log.info('Saving model to: %s' % os.path.join(args.out,
                                                       dev.name + '.yml'))
