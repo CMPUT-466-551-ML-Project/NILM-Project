@@ -80,6 +80,9 @@ def main():
         log.info('Training: %s' % dev.name)
         activations = dev.activations(np.float32(25.0))
 
+        log.info('Activations:')
+        for a in activations:
+            log.info('From %s to %s lasting %s' % (a[0], a[1], a[1] - a[0]))
         if len(activations) == 0:
             log.info('No activations found.')
             continue
@@ -96,6 +99,9 @@ def main():
         log.info('Computing windows...')
         std_dev = np.std(np.random.choice(dev.powers, 10000))
         max_power = dev.powers.max()
+
+        log.info('Std Dev: %s' % std_dev)
+        log.info('Max Power: %s' % max_power)
         for i in xrange(0, length - window_size + 1, window_size):
             label_window = dev.powers[i:i+window_size]
             input_window = np.divide(agg_data.powers[i:i+window_size],
