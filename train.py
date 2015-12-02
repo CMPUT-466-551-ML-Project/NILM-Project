@@ -82,7 +82,9 @@ def main():
 
         log.info('Activations:')
         for a in activations:
-            log.info('From %s to %s lasting %s' % (a[0], a[1], a[1] - a[0]))
+            log.info('From %s to %s lasting %s' % (dev.times[a[0]],
+                                                   dev.times[a[1]-1],
+                                                   a[1] - a[0]))
         if len(activations) == 0:
             log.info('No activations found.')
             continue
