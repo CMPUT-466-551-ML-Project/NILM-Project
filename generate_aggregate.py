@@ -35,6 +35,7 @@ def main():
                         (agg_path, args.dir))
 
     agg_data = TimeSeries(path=os.path.abspath(args.aggregated[0]))
+    agg_data.pad()
     for agg_path in args.aggregated[1:]:
         agg_in = TimeSeries(path=os.path.abspath(agg_path))
         agg_in.pad()
