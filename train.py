@@ -98,6 +98,9 @@ def main():
         agg_windows = []
         dev_windows = []
 
+        window_size = min(1500, window_size)
+        window_size = max(8, window_size)
+
         log.info('Computing windows...')
         std_dev = np.std(np.random.choice(dev.powers, 10000))
         max_power = dev.powers.max()
