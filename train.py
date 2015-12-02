@@ -103,19 +103,19 @@ def main():
         log.info('Std Dev: %s' % std_dev)
         log.info('Max Power: %s' % max_power)
         for i in xrange(0, length - window_size + 1, window_size):
-            dev_window = np.divide(dev.powers[i:i+window_size], max_power)
+            dev_window = np.divide(dev.powers[i:i+window_size-6], max_power)
             agg_window = agg_data.powers[i:i+window_size]
 
             mean = agg_window.mean(axis=None)
             agg_window = np.divide(np.subtract(agg_window, mean), std_dev)
 
-            dev_windows.append(agg_window)
-            agg_windows.append(dev_window)
+            dev_windows.append(dev_window)
+            agg_windows.append(agg_window)
 
         agg_windows = np.array(agg_windows)
         dev_windows = np.array(dev_windows)
         agg_windows.shape = (len(agg_windows), window_size, 1)
-        dev_windows.shape = (len(dev_windows), window_size, 1)
+        dev_windows.shape = (len(dev_windows), window_size - 6, 1)
 
         log.info('Training network...')
         network = DenoisingAutoencoder(window_size)

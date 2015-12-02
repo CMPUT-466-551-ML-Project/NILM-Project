@@ -16,8 +16,9 @@ class DenoisingAutoencoder(object):
     we learn to recover the original signal.
     """
     def __init__(self, window_size, model_path=None, weight_path=None):
+        self.num_filters = 8
         self.window_size = window_size
-        self.size = (window_size - 3) * 8
+        self.size = (window_size - 3) * self.num_filters
 
         if model_path is not None:
             self.load_model(model_path)
@@ -31,7 +32,7 @@ class DenoisingAutoencoder(object):
         """Initialize the network model."""
         self.model = Sequential()
 
-        self.model.add(Convolution1D(8, 4, 'uniform', 'linear',
+        self.model.add(Convolution1D(self.num_filters, 4, 'uniform', 'linear',
                                      border_mode='valid', subsample_length=1,
                                      input_dim=1,
                                      input_length=self.window_size))
@@ -40,7 +41,7 @@ class DenoisingAutoencoder(object):
                              activation='relu'))
         self.model.add(Dense(128, 'uniform', 'relu'))
         self.model.add(Dense(self.size, 'uniform', 'relu'))
-        self.model.add(Reshape(dims=(self.size, 1)))
+        self.model.add(Reshape(dims=(self.window_size - 3, self.num_filters)))
         self.model.add(Convolution1D(1, 4, 'uniform', 'linear',
                                      border_mode='valid', subsample_length=1,
                                      input_dim=1, input_length=self.size))
