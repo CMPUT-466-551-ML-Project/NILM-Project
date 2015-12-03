@@ -108,6 +108,11 @@ def main():
         log.info('Std Dev: %s' % std_dev)
         log.info('Max Power: %s' % max_power)
         for i in xrange(0, length - window_size + 1, window_size):
+            if agg_data.times[i+window_size-1] - agg_data.times[i] > window_size:
+                log.info('Throwing out from %s to %s' %
+                         (agg_data.times[i], agg_data.times[i+window_size-1]))
+                continue
+
             dev_window = np.divide(dev.powers[i:i+window_size-6], max_power)
             agg_window = agg_data.powers[i:i+window_size]
 
