@@ -170,7 +170,28 @@ class TestTimeSeries(unittest.TestCase):
         ts_test.array[3] = (np.uint32(4), np.float32(3.0))
         ts_test.array[4] = (np.uint32(5), np.float32(0.0))
 
-        ts_missing.pad()
+        ts_missing.pad(5)
+
+        self.assertItemsEqual(ts_missing.powers, ts_test.powers)
+
+    def test_padding_gap(self):
+        """
+        Test padding a TimeSeries with a large gap.
+        """
+        ts_missing = TimeSeries()
+        ts_missing.array.resize(3)
+        ts_missing.array[0] = (np.uint32(1), np.float32(1.0))
+        ts_missing.array[1] = (np.uint32(3), np.float32(3.0))
+        ts_missing.array[2] = (np.uint32(8), np.float32(0.0))
+
+        ts_test = TimeSeries()
+        ts_test.array.resize(4)
+        ts_test.array[0] = (np.uint32(1), np.float32(1.0))
+        ts_test.array[1] = (np.uint32(2), np.float32(1.0))
+        ts_test.array[2] = (np.uint32(3), np.float32(3.0))
+        ts_test.array[3] = (np.uint32(8), np.float32(0.0))
+
+        ts_missing.pad(3)
 
         self.assertItemsEqual(ts_missing.powers, ts_test.powers)
 

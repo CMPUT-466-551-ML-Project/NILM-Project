@@ -79,7 +79,7 @@ class TimeSeries(object):
 
         self.array = self.array[indices]
 
-    def pad(self):
+    def pad(self, max_pad):
         """
         Pad the timeseries data so that there are no missing values. We fill in
         missing power values using the previous power value in the series.
@@ -91,10 +91,18 @@ class TimeSeries(object):
 
         cnt = 0
         for i in xrange(len(self.times)-1):
-            for t in xrange(self.times[i], self.times[i+1]):
+            padded_array[cnt] = (np.uint32(self.times[i]), self.powers[i])
+            cnt += 1
+
+            if self.times[i+1] - self.times[i] > max_pad:
+                continue
+
+            for t in xrange(self.times[i]+1, self.times[i+1]):
                 padded_array[cnt] = (np.uint32(t), self.powers[i])
                 cnt += 1
-        padded_array[-1] = (np.uint32(self.times[-1]), self.powers[-1])
+
+        padded_array[cnt] = (np.uint32(self.times[-1]), self.powers[-1])
+        padded_array.resize(cnt + 1)
 
         self.array = padded_array
 
