@@ -30,6 +30,18 @@ def solve_constant_energy(aggregated, device_activations):
     error = mean_squared_error(np.dot(matrix, solution.x), aggregated)
 
     return (solution.x, error)
+    
+def matrix_inversion(aggregated, device_activations):
+    """
+    Invert the indicator matrix, solving for the constant energy of each
+    device. We return the constant power for each device, and the mean squared
+    error.
+    """
+
+    matrix = np.column_stack(device_activations)
+    pinv = np.linalg.pinv(matrix)
+
+    return np.dot(pinv, aggregated)
 
 def confidence(data):
     """A Heuristic for how usable our current estimate of data is."""

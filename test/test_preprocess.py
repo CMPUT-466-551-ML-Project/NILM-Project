@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 
 from nilm.preprocess import (confidence_estimator, get_changed_data,
-                             solve_constant_energy, sort_data)
+                             solve_constant_energy, sort_data, matrix_inversion)
 from nilm.timeseries import TimeSeries
 
 
@@ -73,6 +73,73 @@ class TestPreprocessConstantEnergy(unittest.TestCase):
         energies_test = [np.float32(2.0), np.float32(1.0), np.float(3.0)]
 
         self.assertTrue(np.allclose(energies_test, energies[0],
+                                    atol=np.float32(1e-3)))
+
+class TestPreprocessMatrixInversion(unittest.TestCase):
+    """
+    Test the constant energy preprocessing function.
+    """
+    def test_constant_energy_identity(self):
+        """Test constant energy preprocessing on the identity matrix."""
+        ts = [TimeSeries(), TimeSeries(), TimeSeries()]
+
+        ts[0].array.resize(3)
+        ts[0].array[0] = (np.uint32(1), np.float32(1.0))
+        ts[0].array[1] = (np.uint32(2), np.float32(0.0))
+        ts[0].array[2] = (np.uint32(3), np.float32(0.0))
+
+        ts[1].array.resize(3)
+        ts[1].array[0] = (np.uint32(1), np.float32(0.0))
+        ts[1].array[1] = (np.uint32(2), np.float32(1.0))
+        ts[1].array[2] = (np.uint32(3), np.float32(0.0))
+
+        ts[2].array.resize(3)
+        ts[2].array[0] = (np.uint32(1), np.float32(0.0))
+        ts[2].array[1] = (np.uint32(2), np.float32(0.0))
+        ts[2].array[2] = (np.uint32(3), np.float32(1.0))
+
+        aggregated = ts[0] + ts[1] + ts[2]
+
+        energies = matrix_inversion(aggregated.powers,
+                                         [t.indicators() for t in ts])
+
+        energies_test = [np.float32(1.0), np.float32(1.0), np.float(1.0)]
+
+        self.assertTrue(np.allclose(energies_test, energies[0],
+                                    atol=np.float32(1e-3)))
+
+    def test_constant_energy(self):
+        """Test constant energy preprocessing on a more complicated matrix."""
+        ts = [TimeSeries(), TimeSeries(), TimeSeries()]
+
+        ts[0].array.resize(3)
+        ts[0].array[0] = (np.uint32(1), np.float32(2.0))
+        ts[0].array[1] = (np.uint32(2), np.float32(2.0))
+        ts[0].array[2] = (np.uint32(3), np.float32(0.0))
+
+        ts[1].array.resize(3)
+        ts[1].array[0] = (np.uint32(1), np.float32(0.0))
+        ts[1].array[1] = (np.uint32(2), np.float32(1.0))
+        ts[1].array[2] = (np.uint32(3), np.float32(1.0))
+
+        ts[2].array.resize(3)
+        ts[2].array[0] = (np.uint32(1), np.float32(3.0))
+        ts[2].array[1] = (np.uint32(2), np.float32(3.0))
+        ts[2].array[2] = (np.uint32(3), np.float32(3.0))
+
+        aggregated = ts[0] + ts[1] + ts[2]
+
+        energies = matrix_inversion(aggregated.powers,
+                                         [t.indicators() for t in ts])
+
+        energies_test = [np.float32(2.0), np.float32(1.0), np.float(3.0)]
+        
+        print(energies_test)
+        print(energies)
+        print(energies == energies_test)
+        print [np.isclose(x,y) for (x,y) in zip(energies_test, energies)]
+
+        self.assertTrue(np.allclose(energies_test, energies,
                                     atol=np.float32(1e-3)))
 
 
