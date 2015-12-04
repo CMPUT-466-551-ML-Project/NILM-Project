@@ -19,7 +19,7 @@
 \usepackage{epstopdf}
 
 \title{Energy Disaggregation}
-\author{All our names}
+\author{Henry Agsten, Jacob Denson, Jesse Huard, Isabel McCarten, Morgan Redshaw}
 \date{}
 
 \begin{document}
@@ -48,11 +48,11 @@ Faulty devices could also be identified by abnormal energy consumption.
 **May not be correct** Due to the diversity of devices, both which are used in a house and their power consumption, it can be difficult to generalize from one house to another.
 
 %TODO: List of a few papers that require this. Include all that we are referencing at other spots and that do this
-Many existing methodologies for NILM require the aggregated energy usage for a house and the energy usage for each device of interest during the same time period \cite{Kelly, Cicchetti}. 
+Many existing methodologies for NILM require the aggregated energy usage for a house and the energy usage for each appliance of interest during the same time period \cite{Kelly, Cicchetti}. 
 %TODO: Find paper that references this. Also, sentence should be better
 However, recording the energy usage for each device is difficult, due to the requirement of adding sensors to each device.
 With the increase in the Internet of Things, we expect that more devices will be able to indicate when they are using power to the server.
-It is, however, unlikely that the necessary **tooling** to record the actual power used will not be installed into these devices.
+It is, however, unlikely that the necessary means to record the actual power usage will be installed into these devices.
 Thus, the existing methodologies would not be able to benefit from these changes in devices.
 
 
@@ -66,54 +66,75 @@ In this report, we investigate different methods for taking the aggregated energ
 
 %NOTE: Should focus on research relevant to ours. Don't know how much there is.
 %TODO: Should also outline one or two unsupervised approaches.
-There have not been any studies of NIML using information about what time points each device was on at.
+As far as we know, no studies of NILM using only information about the activity of each device per timestep, exist.
 %TODO: Cite all of these
-There have been supervised approaches using the disaggregated energy\cite{} or energy signatures \cite{} for each device.
-Some unsupervised approaches, also exist that only use the aggregated energy of the overall house.
+There have been supervised approaches using the disaggregated energy\cite{Kelly} or energy signatures \cite{Parson} for each device.
+Some unsupervised approaches also exist that only use the aggregated energy of the overall house \cite{Kolter}.
 %TODO: Mention something about related approaches or similar ideas?
 
-\subsection{Independent Component Analysis}
+%\subsection{Independent Component Analysis}
 
 %TODO: Soundwaves is the wrong word
-To use ICA, we would need to assume that the signature for each device is statistically independent, which is unfortunately not true.
+%To use ICA, we would need to assume that the signature for each device is statistically independent, which is unfortunately not true.
 %TODO: Find citation for this
-As well, ICA performs best when there are multiple different 'sound waves', but with NILM there would only be the power being used by the house for each timestep.
-Thus, we believe that applying independent component analysis will not achieve significantly better results to existing methods.
+%As well, ICA performs best when there are multiple different 'sound waves', but with NILM there would only be the power being used by the house for each timestep.
+%Thus, we believe that applying independent component analysis will not achieve significantly better results to existing methods.
 
 %TODO: Should these be the approach name, or something else?
+
+\subsection{Unsupervised Approaches}
+Kolter \cite{Kolter} uses one Hidden Markov Model per device to describe its consumption and figure out at what time it was active. 
+Even though his approach is unsupervised he gets F-scores for up to 85\% for devices with clearly distinguish patterns (e.g. fridges). 
+His results encourage us that unsupervised methods are able to achieve positive results as well. 	
 \subsection{Supervised Approaches}
 
 %TODO: Citations for this
-These approaches often use Hidden Markov Models, or a variant like dHMM, or using a neural network to estimate the power consumption for each device.
+The most common supervised approaches use Hidden Markov Models as well as neural networks to estimate the power consumption 
+for each device.
 
-One approach that uses some form of HMMs is Parsons Method for NILM \cite{Cicchetti}.
-This method uses one difference Hidden Markov Model (dHMM) per device to describe its consumption and figure out at what time it was active.
+Well known is Parson's \cite{Parson} usage of one difference Hidden Markov Model (dHMM) per device to describe its 
+consumption and figure out at what time it was active.
 %TODO: Make sure is correct, and possibly cite this
-A dHMM is very similar to an HMM, but it has an additional hidden variables for the difference from the previous to current state.
-While this approach does not require the disaggreated energy signature per device, it does require prior knowledge in the form of 
+A dHMM extends traditional Hidden-Markov-Models by additional hidden variables for the difference from the previous 
+to current state. While this approach does not require the disaggreated energy signature per device, it does require 
+prior knowledge in the form of ???
 
-There have also been many teams that use neural networks to disaggregate the power consumption. 
-Kelly and Knottenbelt identify that often signal reconstruction is not integral to applications.
-Therefore, they take their task to be identification of a begin time, end time, and overall energy usage of a specific device, during the first cycle it is used.
-They attempt to solve the problem via an amalgamation of Constitutional, Feed forward, and recurrent neural nets, combined with a denoising error\footnote{Viewing other data as `noise' may also cut out the holistic approach to the problem, removing the problem of global consistency.} and training on each device individually\footnote{This may ignore inherent relationships between different devices (though perhaps the neural networks account for this).
-Perhaps a way to `double check' nets are correct may provide a more effective, holistic approach.}.
-Due to the extensive data set one needs to train deep nets, the pair generates synthetic data by combining data with `noise' data\footnote{The data they generate is naive, and we will likely see performance increases from a more realistic generation of data, or through pre-training on large amounts of unlabelled data, then a less extensive training on real data.}.
-I did not understand how data was selected for training, but I do no it is normalized to have mean zero -- which may or may not reduce the ability to consistently identify features.
+Latest progress was made by applying deep neural nets, where Kelly and Knottenbelt \cite{Kelly} used recurrent neural 
+nets with four hidden layers and achieved positive results for stable-behaving devices, but lacked accuracy for multi-stated 
+ones, leading to a F-score of 51\%. They also considered denoising autoencoders training one neural net per appliance. 
+The neural net takes the power consumption within a sliding window as input and separates the devices consumption from 
+the remaining power. Determining the window size by the usual activity time of the device they achieve an F-score of 70\%. 
+Both of their approaches use in the training phase the separated energy consumption for every device, ignoring possible inherent 
+relationships between different devices. Furthermore they identify that often signal reconstruction is not integral to applications.
+Therefore, they take their task to be identification of a begin time, end time, and overall energy usage of a specific device, 
+during the first cycle it is used.
+%They attempt to solve the problem via an amalgamation of Constitutional, Feed forward, and recurrent neural nets, combined with 
+%a denoising error\footnote{Viewing other data as `noise' may also cut out the holistic approach to the problem, removing the 
+%problem of global consistency.} and training on each device individually\footnote{This may ignore inherent relationships between 
+%different devices (though perhaps the neural networks account for this).
+%Perhaps a way to `double check' nets are correct may provide a more effective, holistic approach.}.
+%Due to the extensive data set one needs to train deep nets, the pair generates synthetic data by combining data with `noise' data\footnote{The data they generate is naive, and we will likely see performance increases from a more realistic generation of data, or through pre-training on large amounts of unlabelled data, then a less extensive training on real data.}.
+Weiss \cite{Weiss} presumes the power consumption as a sequence of piecewise constant consumption levels those differences 
+describe the typical consumption pattern of a distinct device. They identify devices by checking for characteristic differences 
+between consumption changes and look for the most similar device pattern via neareast neighbor calculation. Since they get remarkable 
+F-scores of 80\% and higher for some devices although the strong assumption we also have a look on signal for which this assumption holds.
+
+%I did not understand how data was selected for training, but I do no it is normalized to have mean zero -- which may or may not reduce the ability to consistently identify features.
 ​
-Questions about the paper:
+%Questions about the paper:
 %
-\begin{enumerate}
-	\item Using Convolutional Neural networks (Time Invariant).
-	\item Ignoring all but first activation.
-	\item Why does the algorithm ignore all but the first activation.
-	\item Local to Global.
-	\item NILMTK will be useful!
-	\item Periodicity.
-\end{enumerate}
+%\begin{enumerate}
+%	\item Using Convolutional Neural networks (Time Invariant).
+%	\item Ignoring all but first activation.
+%	\item Why does the algorithm ignore all but the first activation.
+%	\item Local to Global.
+%	\item NILMTK will be useful!
+%	\item Periodicity.
+%\end{enumerate}
 ​
-One neural network is trained per target appliance, based on real data and synthetically generated data.
+%One neural network is trained per target appliance, based on real data and synthetically generated data.
 
-**Another interesting aspect of the paper was how they used Denoising Autoencoders.
+%**Another interesting aspect of the paper was how they used Denoising Autoencoders.
 ​
 \subsubsection{Deep Recurrent Neural Networks}
 ​
@@ -154,27 +175,62 @@ Again, used in \cite{Kelly}.
 \section{Our Stuff}
 
 %TODO: This one could be useful
-Known as nonintrusive load monitoring (NILM) various researchers have investigated this problem.
-Weiss (Source3?) presume the power consumption as a sequence of piecewise constant consumption levels whose differences describe the typical consumption pattern of a distinct device.
-Since they get remarkable F-scores of 80\% and higher for some devices we also had a look for signal where this assumption holds.
+%Known as nonintrusive load monitoring (NILM) various researchers have investigated this problem.
+%Weiss (Source3?) presume the power consumption as a sequence of piecewise constant consumption levels whose differences describe the typical consumption pattern of a distinct device.
+%Since they get remarkable F-scores of 80\% and higher for some devices we also had a look for signal where this assumption holds.
 
 Unlike many of the other methods, we are assuming that we do not have the disaggregated power signature for each device during the learning stage.
 Instead, we assume to instead have accurate information about when each device is active, due to the trend of the "Internet of Things".
 Where many devices are connected to the internet, and could thus provide information about when they are active.
 %TODO: Get paper for this?
 
+\subsection{Dataset}
+As a basis to evaluate our approach we use the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption 
+from six houses where the mains, single devices and circuits were measured separately over two weeks(?). Even though the data set contains high-frequent 
+measurings we use the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
+device exist in every house we focused on the most common ones: dishwasher, washer-dryer-combinations (both in all houses), refridgerator (in 5 
+out of 6 houses) as well as microwave and stove (in all but two houses). Since the sum of all single devices and circuits does not sum up to the 
+measured overall consumption, because small devices like consumer electronics were not traced, we compare two different approaches one with noise 
+and one without. For the unnoised method we sum up only the consumption of the focused devices and take their sum as the aggregated energy consumption. 
+We check these results against the ones where we subtract the devices which are not of interest for us from the measured overall consumption, which 
+gives us a bigger than natural noise.\\
+For the on/off-indicators we check the dataset against a threshold $\delta$, assigning the device an indicator off $1$ if its consumption in 
+the regarding time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshhold eliminates 
+the uninteresting phases of permant standby uses, as the are common especially in refridgerators.
+
 \subsection{Task}
 
 
 
 \subsection{Evaluation}
+To compare our methods with each other and with existing approaches, we focus on two questions.\\
+1. How good did we identify what devices where active in each time step?\\
+2. How well did we identify the single devices‘ consumption?\\
+To address the first question we use the F1-Score, ensuring our results to be comparable to the works in the section \textit{Literature}. The 
+advantages of the F1-Score to combine recall and precision avoids contortions, which would arise by considering only one of them. Assume we 
+identify the refridgerator being active in all time steps we get a optimal recall value, but a low precision, whereas we get a optimal precision 
+by identifying the refridgerator never as active.
+\[ \textrm{Precision} = \frac{\textrm{Number of true positive elements}}{\textrm{Number of elements identified as positives}}  \]
+\[ \textrm{Recall} = \frac{\textrm{Number of true positives}}{\textrm{Number of elements that are indeed positive}}  \]
+\[ \textrm{F1-Score} = \frac{2 \cdot \textrm{Precision} \cdot \textrm{Recall}}{\textrm{Precision} + \textrm{Recall}}\]
+For the second question we compare the disaggregated energy consumptions per device with the actual device's consumption we have from the REDD
+dataset. Following \cite{Redd} we can compute the accuracy depending on the summed absolute deviation in relation to 
+the overall consumption:
+\[\textrm{Accuracy}_{abs} = 1- \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{2 \sum^{T}_{t=1}Y_t} .  \]
+While this weights all errors regardless of their size the same, we also want information about the accuracy when 
+weighting bigger deviations higher than smaller ones. We use the root squared error instead of the squared error 
+to stay within the same unit and be able to compute the ratio with summed up overall consumption.
+\[\textrm{Accuracy}_{rse} = 1- \frac{\sqrt{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}}{2 \sum^{T}_{t=1}Y_t} .  \]
+
+
+
 
 %TODO: Whatever evaluation function to see how well the neural network does after training.
 %May even want to use two or more, to see if they work better in different circumstances
 
-Then, we will compare the results for the different trained denoising autoencoder neural nets, based on the data that we preprocessed.
+%Then, we will compare the results for the different trained denoising autoencoder neural nets, based on the data that we preprocessed.
 
-Will train and evaluate on the devices %TODO: write out devices
+%Will train and evaluate on the devices %TODO: write out devices
 
 
 %TODO: Example?
