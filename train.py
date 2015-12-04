@@ -113,7 +113,7 @@ def main():
                          (agg_data.times[i], agg_data.times[i+window_size-1]))
                 continue
 
-            dev_window = np.divide(dev.powers[i:i+window_size-6], max_power)
+            dev_window = np.divide(dev.powers[i+3:i+window_size-3], max_power)
             agg_window = agg_data.powers[i:i+window_size]
 
             mean = agg_window.mean(axis=None)
