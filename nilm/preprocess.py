@@ -130,6 +130,7 @@ def confidence_estimator(aggregated, devices, data_sorter,
         mean_choice = data[choice].mean(axis=None)
 
     new_aggregated = aggregated - indicator_matrix[:, choice] * mean_choice
+    new_aggregated = np.clip(new_aggregated, np.float32(0.0), np.inf)
 
     new_devices = devices[:choice] + devices[choice+1:]
     calculated_means = confidence_estimator(new_aggregated, new_devices,
