@@ -16,6 +16,8 @@
 \usepackage{doc}
 \usepackage{url}
 \usepackage{graphicx}
+\usepackage{aaai}
+\usepackage{amsmath}
 \usepackage{epstopdf}
 
 \title{Energy Disaggregation}
@@ -213,6 +215,62 @@ standby mode. To generate the  on/off-indicators we check the dataset against a 
 consumption in the regarding time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
 eliminates the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
 
+\section{Preprocessing}
+​
+Robust evaluation metrics are essential to applying supervised learning techniques. Unfortunately, obtaining reasonable metrics is near impossible without actual power outputs of individual devices. Nonetheless, we are still interested in applying supervised approaches, which have a strong history of success in energy disaggregation. Our solution estimates individual outputs on the training data, as a preprocessing step to train a more powerful prediction algorithm. We emphasize that as a general prediction method, the preprocessing algorithms we describe are not viable, since after the training phase we have no access to device on/off indicators, which are key in obtaining power output.
+​
+Inferring general power outputs is an underdetermined problem. Good results can therefore only be obtained by making strict assumptions about the statistical model producing the data. Here, we apply two separate models: The simplest assumes that good estimates are obtained from a constant power estimate, the second that each device is represented by a restricted family of markov processes.
+​
+In the sequel, the following notation will be convinient. We shall let $N$ denote the number of devices we are observing, and $T$ the number of time epochs. The random variable $X_i^t$ models the output of the device $i$ at the time $t$, and $Y^t = \sum X_i^t$ denotes the total power output. We observe the indicators $I_i^t = \mathbf{I}(X_i^t > 0)$ and $Y^t$ over the range of $i$ and $t$, and must predict the $X_i^t$ to the best of our ability.
+​
+\subsection{A Constant Power Assumption}
+​
+In our first model, we assume that the output of devices are mutually independant, and that the outputs of a specific device are i.i.d with respect to time, when that device is switched on. The mathematics tells us that there are numbers $P_1, \dots, P_n \in \mathbf{R}^+$ for which $X_i^t = P_i + \varepsilon_i$, where $\mathbf{E}(\varepsilon_i) = 0$. Assuming error variances are small, we conclude that treating the power output of a device as constant when it is switched on is accurate, and our problem reduces to finding the values $P_i$. After the $P_i$ are predicted, output estimations are calculated
+%
+\[ \hat{X_i^t} = I_i^t P_i \]
+%
+Finding $P_i$ is feasable, once an optimization metric is obtained.
+​
+The simplest way to choose the $P_i$ is to minimize the $L_2$ error of our estimated total
+%
+\[ \hat{Y}^t = \sum_{i = 1}^n \hat{X_i^t} = \sum_{i = 1}^n I_i^t P_i \]
+%
+with respect to the known total $Y^t$. This leads to thehis can be easily found by the optimization
+%
+\[ \min_{P_1, \dots, P_n \in \mathbf{R}^+} \sum_{t = 1}^T \left( Y^t - \sum_{i = 1}^n I_i^t P_i \right)^2 \]
+%
+In our implementation, we use Scipy's {\it optimize()} method to determine the $P_i$, which uses one of a range of non-linear optimization algorithms.
+​
+\subsection{Estimating Difference Markov Processes}
+​
+An alternate model assumes the underlying processes generating appliance power outputs are mutually independant markov models. As an extension of the previous model, the power outputs of devices are constant when the underlying chain remains in a single state. This should suffice for most practical applications, since most appliances change their power load only when running in a different `mode' (an oven cooking at different temperatures, a computer under different stress levels, etc.).
+​
+Mathematically speaking, the outputs $X_i^t$ are drawn from some hidden markov model with states $S^i_0, S^i_1, \dots, S^i_{K_i}$, where $S_0$ is the `off' state ($X_i^t = 0$) and that, given that the markov model is in a state $S^i_k$ at some time $t$, then $X_i^t \sim \mu_i^k + \varepsilon_i^k$, where $\mathbf{E}(\varepsilon_i) = 0$, and $\mu_i^k \in \mathbf{R}^+$ are fixed. Once we have estimated such a model, we may estimate the $X_i^t$ by a best fit method -- calculating the state transition that results in the best fit. We don't ever need to calculate transition probabilities, since our knowledge of the indicator functions effectively removes most of the randomness from the calculation.
+​
+Hidden markov chains are still difficult to estimate, so restriction of the markov model's structure is necessary. In words, we restrict the model such that it is unable to transition from any on state to any on state directly -- it must pass through the off state in order to transition to these states. A general diagram for such a markov chain is displayed below. It is hard enough to estimate the means, so we assume that the states of the markov diagram have been given by divine insight -- this is a classic problem; too many states will overfit the data, too few will underfit.
+%
+% PLACEHOLDER IMAGE
+\begin{center}
+\includegraphics[scale = 0.5]{process-probabilities}
+\end{center}
+%
+To further reduce the dimensionality, we follow Kolter's approach to the Markov model problem by considering difference Markov models\footnote{described in [1], see the section on additive markov models}. Rather than working with the data $Y^t$, we choose only to use values $\Delta Y^t := Y^t - Y^{t-1}$ at timepoints $t$ where the $i$'th device switches on ($\mathbf{I}(X_i^{t-1} > 0) = 0$ and $\mathbf{I}(X_i^t > 0) = 1$). Hopefully, this difference describes the average power over the entire interval where the device is switched on. Even if it doesn't, we should have enough data to filter out errors. At these time points, it is very likely that our device will be the only device to change state, for we are effectively viewing a discrete embedding into a continuous time markov chain, and it is common knowledge that in such a chain that, given our embedding is sufficiently fine, two state changes will very rarely occur at once. We then attempt to optimize our choice of $\mu_i$ redefining $X_i^{t + k} = \Delta Y^t$, where $X_i^{t + l} > 0$ for $l \in \{0, 1, \dots, k\}$.
+​
+Now we shall describe the optimization for a specific device $i$. Suppose that, the device enters a series of intervals of lengths $l_1, \dots, l_M$, taking difference values $\Delta Y^{t_1}, \dots, \Delta Y^{t_M}$ in each interval. We proceed to determine the values $\mu_1, \dots, \mu_K$ by minimizing the best fit over the data. Minimization over the $L_1$ norm will be used, since we may take advantage of its discrete qualities
+%
+\begin{equation} \min_{\mu_1, \dots, \mu_K} \sum_{i = 1}^M l_i \min_{k \in \{ 1, \dots, K \}}|\Delta Y^{t_i} - \mu_k| \end{equation}
+%
+There is a geometric interpretations of this minimization. Viewing the $\Delta Y^{t_i}$ as points, each with a `weight' $l_i$, we are attempting to choose the best centers of mass $\mu_1, \dots \mu_n$ which distribute themselves evenly between the points $\Delta Y^{t_i}$.
+​
+If we vary just one of the means $\mu_i$ in (1), we obtain a piecewise linear function. It follows that the minima $\mu_i$ may always be chosen to lie at the edge points of the function, which are the values $\Delta Y^{t_i}$. This leads to a discrete problem (which is not true for other $L_p$ norms), which we may solve through dynamic programming. First, we order the $\Delta Y^{t_i}$. Suppose $\mu_1 < \mu_2 < \dots < \mu_K$ is the optimal solution to our problem. If we remove $\mu_K$, then $\mu_1 < \dots < \mu_{K-1}$ is the optimal solution to the subproblem of distributing $K-1$ means among the subset of points who's closest mean is not $\mu_K$ (for otherwise we can move these means to improve our current solution). We therefore can work backwards dynamically to obtain a solution. From this optimal substructure, we obtain the simple recurrence: If we let $L(m,k)$ be the optimum cost of putting $k$ of the $\mu_i$ in the range $\{ t_1, \dots, t_m \}$, then we may choose an interval $\{ t_p, \dots, t_m \}$ for which $\mu_k$ will be the closest estimate, and then we optimize over $\{ t_1, \dots, t_p \}$ with one less estimate. Our reccurence is
+%
+\begin{align*}
+    L(m,k) = \min_{k \leq p < m} \bigg\{ L(p,k-1) + \min_{p < i \leq m} \sum_{j = p+1}^m l_j |Y^{t_j} - Y^{t_i}| \bigg\}
+\end{align*}
+%
+\[ L(1,1) = 0 \]
+%
+By keeping track of the location of the means recursively, we can build up the optimal $\mu_i$.
 
 \subsection{Task}
 
