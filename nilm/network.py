@@ -15,13 +15,15 @@ class DenoisingAutoencoder(object):
     convoluted before being fed into an encoding layer. From the encoding layer
     we learn to recover the original signal.
     """
-    def __init__(self, window_size, model_path=None, weight_path=None):
+    def __init__(self, window_size, model_path=None, weight_path=None, name="default"):
         self.num_filters = 8
         self.window_size = window_size
         self.size = (window_size - 3) * self.num_filters
 
         if model_path is not None:
             self.load_model(model_path)
+        elif name == "small":
+            self.initialize_small_model()
         else:
             self.initialize_model()
 
@@ -48,6 +50,17 @@ class DenoisingAutoencoder(object):
 
         sgd = SGD(lr=0.01, decay=0, momentum=0.9, netarov=True)
         self.model.compile(loss='mean_squared_error', optimizer=sgd)
+        
+    def initialize_small_model(self):
+        self.model = Sequential()
+        
+        self.model.add(Dense(output_dim=self.size, init='uniform',
+                             activation='relu', input_dim=self.window_size))
+        self.model.add(Dense(128, 'uniform', 'relu'))
+        self.model.add(Dense(self.window_size, 'uniform', 'relu'))
+
+        sgd = SGD(lr=0.01, decay=0, momentum=0.9, netarov=True)
+        self.model.compile(loss='mean_squared_error', optimizer=sgd)        
 
     def train(self, aggregate_power, device_power):
         """Train the network given the aggregate and device powers."""
