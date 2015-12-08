@@ -46,7 +46,8 @@ class DenoisingAutoencoder(object):
                                      border_mode='valid', subsample_length=1,
                                      input_dim=1, input_length=self.size))
 
-        self.model.compile(loss='mean_squared_error', optimizer='rmsprop')
+        sgd = SGD(lr=0.01, decay=0, momentum=0.9, netarov=True)
+        self.model.compile(loss='mean_squared_error', optimizer=sgd)
 
     def train(self, aggregate_power, device_power):
         """Train the network given the aggregate and device powers."""
