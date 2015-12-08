@@ -82,11 +82,22 @@ Some unsupervised approaches also exist that only use the aggregated energy of t
 
 %TODO: Should these be the approach name, or something else?
 
-\subsection{Unsupervised Approaches}
-Kolter \cite{Kolter} uses one Hidden Markov Model per device to describe its consumption and figure out at what time it was active. 
-Even though his approach is unsupervised he gets F-scores for up to 85\% for devices with clearly distinguish patterns (e.g. fridges). 
-His results encourage us that unsupervised methods are able to achieve positive results as well. 	
-\subsection{Supervised Approaches}
+\subsection{Approaches using no information about single device consumption}
+Unsupervised proceedings to disaggregate consumption data reliey mainly on Hidden Markov Models. 
+Kolter \cite{Kolter} uses one Hidden Markov Model per device to describe its consumption and figure out at what time 
+it was active. He finds periods of activity, clusters similar ones and builds a Hidden Markov Model per device. 
+Unfortunately the proceeding to find these periods is not described in detail but seems to look for intervals when only 
+one device is active, what we want to enhance. He states to reach precision values of over 90\% for some devices but since the recall values are not 
+given it is harsh to judge these results. 
+In contrast to this completely unsupervised approach Parson starts with knowledge about the general device type and 
+offers for each device a generic model, which is fitted to the actual device. His biggest benefits are to identify the 
+devices without labeling manually, since his generic models are labeled once and that he compares the house's device with 
+the set of models, whereby it is not necessary to know how many device are in the house. For devices with clearly distinguish patterns 
+(e.g. fridges) Parson reaches F-scores up to 85\% while achieving results under 20\% for unstable devices (e.g. Microwaves)
+Even though his allocation of generic models and minute-wise measurements did not seem useful for us, his work leaded 
+us to the used REDD-dataset 
+and to the idea look for timesteps when only one device changes its activity status.
+\subsection{Approaches using information about single device consumption}
 
 %TODO: Citations for this
 The most common supervised approaches use Hidden Markov Models as well as neural networks to estimate the power consumption 
@@ -115,9 +126,11 @@ during the first cycle it is used.
 %Perhaps a way to `double check' nets are correct may provide a more effective, holistic approach.}.
 %Due to the extensive data set one needs to train deep nets, the pair generates synthetic data by combining data with `noise' data\footnote{The data they generate is naive, and we will likely see performance increases from a more realistic generation of data, or through pre-training on large amounts of unlabelled data, then a less extensive training on real data.}.
 Weiss \cite{Weiss} presumes the power consumption as a sequence of piecewise constant consumption levels those differences 
-describe the typical consumption pattern of a distinct device. They identify devices by checking for characteristic differences 
+describe the typical consumption pattern of a distinct device. They identify devices by checking for characteristic 
+differences 
 between consumption changes and look for the most similar device pattern via neareast neighbor calculation. Since they get remarkable 
 F-scores of 80\% and higher for some devices although the strong assumption we also have a look on signal for which this assumption holds.
+
 
 %I did not understand how data was selected for training, but I do no it is normalized to have mean zero -- which may or may not reduce the ability to consistently identify features.
 ​
@@ -184,9 +197,10 @@ Instead, we assume to instead have accurate information about when each device i
 Where many devices are connected to the internet, and could thus provide information about when they are active.
 %TODO: Get paper for this?
 
+
 \subsection{Dataset}
 As a basis to evaluate our approach we use the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption 
-from six houses where the mains, single devices and circuits were measured separately over two weeks(?). Even though the data set contains high-frequent 
+from six houses where the mains, single devices and circuits were measured separately over two weeks. Even though the data set contains high-frequent 
 measurings we use the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
 device exist in every house we focused on the most common ones: dishwasher, washer-dryer-combinations (both in all houses), refridgerator (in 5 
 out of 6 houses) as well as microwave and stove (in all but two houses). Since the sum of all single devices and circuits does not sum up to the 
@@ -194,9 +208,11 @@ measured overall consumption, because small devices like consumer electronics we
 and one without. For the unnoised method we sum up only the consumption of the focused devices and take their sum as the aggregated energy consumption. 
 We check these results against the ones where we subtract the devices which are not of interest for us from the measured overall consumption, which 
 gives us a bigger than natural noise.\\
-For the on/off-indicators we check the dataset against a threshold $\delta$, assigning the device an indicator off $1$ if its consumption in 
-the regarding time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshhold eliminates 
-the uninteresting phases of permant standby uses, as the are common especially in refridgerators.
+Our goal is to work only with the information if a device is inactive or active, whereby active means that it is actually on and not only in a
+standby mode. To generate the  on/off-indicators we check the dataset against a threshold $\delta$, assigning the device an indicator of $1$ if its 
+consumption in the regarding time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
+eliminates the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
+
 
 \subsection{Task}
 
@@ -204,7 +220,7 @@ the uninteresting phases of permant standby uses, as the are common especially i
 
 \subsection{Evaluation}
 To compare our methods with each other and with existing approaches, we focus on two questions.\\
-1. How good did we identify what devices where active in each time step?\\
+1. How well did we identify what devices where active in each time step?\\
 2. How well did we identify the single devices‘ consumption?\\
 To address the first question we use the F1-Score, ensuring our results to be comparable to the works in the section \textit{Literature}. The 
 advantages of the F1-Score to combine recall and precision avoids contortions, which would arise by considering only one of them. Assume we 
@@ -213,13 +229,18 @@ by identifying the refridgerator never as active.
 \[ \textrm{Precision} = \frac{\textrm{Number of true positive elements}}{\textrm{Number of elements identified as positives}}  \]
 \[ \textrm{Recall} = \frac{\textrm{Number of true positives}}{\textrm{Number of elements that are indeed positive}}  \]
 \[ \textrm{F1-Score} = \frac{2 \cdot \textrm{Precision} \cdot \textrm{Recall}}{\textrm{Precision} + \textrm{Recall}}\]
-For the second question we compare the disaggregated energy consumptions per device with the actual device's consumption we have from the REDD
+For the second question we are interested in the error per timestep and to generate acuuracy-like value. Therefore we
+compare the disaggregated energy consumptions per device with the actual device's consumption we have from the REDD
 dataset. Following \cite{Redd} we can compute the accuracy depending on the summed absolute deviation in relation to 
 the overall consumption:
 \[\textrm{Accuracy}_{abs} = 1- \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{2 \sum^{T}_{t=1}Y_t} .  \]
-While this weights all errors regardless of their size the same, we also want information about the accuracy when 
+The error per timestep can be similarly described as the absolute squared error:
+\[\textrm{ASE} = \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{T \cdot n} .  \]
+While the absolute error weights all differences regardless of their size the same, we also want information about the accuracy when 
 weighting bigger deviations higher than smaller ones. We use the root squared error instead of the squared error 
-to stay within the same unit and be able to compute the ratio with summed up overall consumption.
+to stay within the same unit. Therewith we calculate the root mean squared error as the error per timestep and similar a respective 
+accuracy as the ratio with summed up overall consumption.
+\[\textrm{RMSE} = \sqrt{\frac{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}{T \cdot n}} .  \]
 \[\textrm{Accuracy}_{rse} = 1- \frac{\sqrt{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}}{2 \sum^{T}_{t=1}Y_t} .  \]
 
 
