@@ -102,7 +102,7 @@ def main():
         window_size = max(8, window_size)
 
         log.info('Computing windows...')
-        std_dev = np.std(np.random.choice(dev.powers, 10000))
+        std_dev = np.std(np.random.choice(agg_data.powers, 10000))
         max_power = dev.powers.max()
 
         log.info('Std Dev: %s' % std_dev)
