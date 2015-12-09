@@ -49,6 +49,10 @@ Having access to disaggregated energy consumption is useful to homeowners, as st
 Additionally, this information can be used to identify devices in a home which have become faulty and are in need of repair.
 When a device breaks, changes in its energy consumption patterns can be detected by an automated system, allowing the homeowner to be notified that the device needs servicing.
 
+Most existing machine learning methodologies for NILM are trained using data from households which have been instrumented to record the power consumption of each device separately, in addition to the aggregate household power usage \cite{Kelly, Cicchetti}.
+However, as noted above, this instrumentation is expensive and makes it difficult to gather new data, with most existing datasets being limited to recording from only a small number of homes \cite{Redd}\cite{Kelly2}.
+This lack of data from many homes has the effect of making it difficult to see how well current NILM algorithms generalize to unseen homes, and can be problematic with algorithms which require large amounts of data, such as deep neural network architectures \cite{Kelly}.
+
 
 %TODO: Find paper that references difficulty of adapting to new house
 **May not be correct** Due to the diversity of devices, both which are used in a house and their power consumption, it can be difficult to generalize from one house to another.
