@@ -300,6 +300,10 @@ accuracy as the ratio with summed up overall consumption.
 \subsection{Implementation}
 Our NILM and pre-processing implementations were written in Python, and are publicly available in our \href{https://github.com/CMPUT-466-551-ML-Project/NILM-Project}{NILM-Project} repository.
 
+After choosing which devices from each home we wanted to train our networks against, we removed the contribution of all other devices present in the home from each home's aggregated power time-series.
+We chose this approach, instead of generating new aggregated data by taking the sum of the power signal of the chosen devices from each home, in order to preserve the noise present in the aggregated power time-series.
+This noise is present even when no recorded device in the home is active, and therefore needed to be preserved so that our networks could account for it during training.
+
 The original data we used had some periods of missing data, and not all devices were sampled at the same frequency.
 To overcome this, we padded our time-series data to be fully aligned across all devices and the aggregate recording.
 Any missing sample period of less than 600 seconds was padded with the most-recently recorded power value.
