@@ -43,6 +43,7 @@ activations = true_device.activations(np.float32(25.0))
 
 if len(activations) == 0:
     print 'No activations found.'
+    exit(0)
 
 with open(data_file, 'r') as data:
     (window_size, std_dev, max_energy) = [x for x in data.readline().split()]
@@ -73,15 +74,18 @@ agg_windows.shape = (len(agg_windows), window_size, 1)
 
 dev_windows = network.model.predict(agg_windows)
 dev_windows.shape = (len(agg_windows), window_size - 6)
-print dev_windows.shape
 
-totalError = 0
+dev_windows = dev_windows * max_energy
+
+windows_with_activations = []
+truth_activations = []
 for (i, window) in enumerate(dev_windows):
     if not any([e > np.float(25.0) for e in truth_windows[i]]):
         continue
 
-    window = window * max_energy
-
+    windows_with_activations.append(window)
+    truth_activations.append(truth_windows[i])
+    
     print 'Mean: %s' % window.mean(axis=None)
     #t1 = TimeSeries()
     #t1.powers = window
@@ -90,7 +94,31 @@ for (i, window) in enumerate(dev_windows):
     print window
     print truth_windows[i]
     print 'Error: %s' % root_mean_squared_error(window, truth_windows[i])
-    totalError += mean_squared_error(window, truth_windows[i])
+    
     #print f_score(t1, t2)
+    
+def CalculateFrom2DArrays(dev_windows, completeTruth):
+    length = dev_windows.shape[0] * dev_windows.shape[1]
+    t1 = TimeSeries()
+    allWindows = dev_windows.reshape(length)
+    t1.array.resize(len(allWindows))
+    t1.powers = allWindows
 
-print 'Error: %s %s' % (totalError, np.sqrt(totalError))
+    t2 = TimeSeries()
+    allTruth = completeTruth.reshape(length)
+    t2.array.resize(len(allWindows))
+    t2.powers = allTruth
+
+    print 'Over %s time intervals:' % length
+    print 'Precision: %s Error: %s' % (f_score(t1, t2, 20.0), root_mean_squared_error(allWindows, allTruth))
+
+completeTruth = np.array(truth_windows)
+
+print '\n\nOver all timesteps:'
+print 'Max power: %s' % max_energy
+CalculateFrom2DArrays(dev_windows, completeTruth)
+
+
+print '\n\nOver windows with some activations:'
+print 'Activations:', len(activations)
+CalculateFrom2DArrays(np.array(windows_with_activations), np.array(truth_activations))

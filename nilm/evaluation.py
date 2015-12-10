@@ -29,6 +29,7 @@ def f_score(test, truth, threshold=np.float32(0.0)):
     precision = true_positives / (true_positives + false_positives)
     recall = true_positives / (true_positives + false_negatives)
 
+    print 'Precision: %s, recall: %s' % (precision, recall)
     return 2 * precision * recall / (precision + recall)
 
 
