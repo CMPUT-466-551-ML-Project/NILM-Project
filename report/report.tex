@@ -58,6 +58,11 @@ With the rise of the ``Internet of Things'', it seems reasonable that in the nea
 Once collected, these binary indicators can be used along with the aggregate power consumption data to find an approximation to the power draw of each individual device in the household.
 These binary indicators forgo the need for expensive instrumentation in each device to monitor power usage, meaning that training data can be continuously collected by an automated system operating at a large scale.
 
+In this paper, we investigate several different pre-processing algorithms for approximating singe device power usage given a household's aggregate power usage and binary on-off indicators for each device in the home.
+To evaluate the effect of our pre-processing compared to state-of-the-art NILM algorithms which use single device power consumption, we use a previously-identified neural network architecture based on denoising auto-encoders \cite{Kelly}.
+For each device network, we will train separately on the raw device power usage and the approximate power usage obtained by each pre-processing algorithm.
+We will then compare the output of each device network to a hold-out set, in order determine the performance impact of our pre-processing algorithms on the NILM task.
+
 
 %TODO: Find paper that references difficulty of adapting to new house
 **May not be correct** Due to the diversity of devices, both which are used in a house and their power consumption, it can be difficult to generalize from one house to another.
