@@ -316,6 +316,13 @@ In our implementation, we used a base threshold of 25W across all devices, to ac
 
 Our pre-processing algorithms use these recovered binary on-off indicators, along with the padded aggregated data of each home, in order to generate an approximation of the device power usage for use when training our networks.
 
+We implemented our neural networks using the Keras library \cite{Keras}.
+Keras is built on top of the Theano library \cite{Theano}\cite{Theano2}.
+Our network weights were initialized randomly from a uniform distribution.
+All experiments described in this paper were trained end-to-end from the random initialization.
+The input size of each network was chosen as the average activation length of the device the network was trained against.
+The input size was bounded to a maximum 1500 seconds, due to memory constraints on the machines the networks were trained on.
+
 \section{Discussion}
 
 \subsection{Future work and Extension}
