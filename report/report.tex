@@ -63,25 +63,6 @@ To evaluate the effect of our pre-processing compared to state-of-the-art NILM a
 For each device network, we will train separately on the raw device power usage and the approximate power usage obtained by each pre-processing algorithm.
 We will then compare the output of each device network to a hold-out set, in order determine the performance impact of our pre-processing algorithms on the NILM task.
 
-
-%TODO: Find paper that references difficulty of adapting to new house
-**May not be correct** Due to the diversity of devices, both which are used in a house and their power consumption, it can be difficult to generalize from one house to another.
-
-%TODO: List of a few papers that require this. Include all that we are referencing at other spots and that do this
-Many existing methodologies for NILM require the aggregated energy usage for a house and the energy usage for each appliance of interest during the same time period \cite{Kelly}\cite{Cicchetti}.
-%TODO: Find paper that references this. Also, sentence should be better
-However, recording the energy usage for each device is difficult, due to the requirement of adding sensors to each device.
-With the increase in the Internet of Things, we expect that more devices will be able to indicate when they are using power to the server.
-It is, however, unlikely that the necessary means to record the actual power usage will be installed into these devices.
-Thus, the existing methodologies would not be able to benefit from these changes in devices.
-
-
-%TODO: This needs to clearly outline that we are NOT learning on the specific house, to handle future data, but are instead preprocessing for the training data
-In this report, we investigate different methods for taking the aggregated energy usage and information for when devices are on and generate information about how much power each device was using.
-
-
-%TODO: What did we accomplish
-
 \section{Related Work}
 
 %NOTE: Should focus on research relevant to ours. Don't know how much there is.
