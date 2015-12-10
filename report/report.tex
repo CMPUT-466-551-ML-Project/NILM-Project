@@ -306,6 +306,10 @@ Any missing sample period of less than 600 seconds was padded with the most-rece
 Any missing sample period of more than 600 seconds was thrown out.
 We used this padded data for training and evaluation.
 
+In order to recover the binary on-off indicators for each device from the power signal, we use a simple thesholding algorithm.
+If the power signal is over the threshold, we say that the device is on, and if the power signal is below the threshold, we say that the device is off.
+In our implementation, we used a base threshold of 25W across all devices, to account for noise present in the signal.
+
 \section{Discussion}
 
 \subsection{Future work and Extension}
