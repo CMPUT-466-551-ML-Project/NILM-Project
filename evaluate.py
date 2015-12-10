@@ -20,10 +20,6 @@ parser.add_argument('-m', '--model', required=True,
 parser.add_argument('-c', '--channel', required=True, help='Device channel')
 parser.add_argument('-l', '--log', default='/tmp/agg.log',
                     help='File to write log to.')
-parser.add_argument('-p', '--preprocess',
-                    choices=['raw','constant','interval','edge'],
-                    default='raw',
-                    help='Which preprocessing algorithm to use.')
     
 args = parser.parse_args()
 
@@ -32,22 +28,35 @@ channel = args.channel
 result_file = '%s/%s' % (args.model, channel)
 model_file = os.path.abspath(result_file + '.yml')
 weight_file = os.path.abspath(result_file + '.h5')
+data_file = os.path.abspath(result_file + '.dat')
 
 device_file = '%s/%s.dat' % (args.dir, channel)
 agg_file = args.aggregated
-
-max_energy = np.float32(1422.0)
 
 aggregate = TimeSeries(path=os.path.abspath(agg_file))
 aggregate.array = aggregate.array[len(aggregate.array)/5*4+1:]
 true_device = TimeSeries(path=os.path.abspath(device_file))
 true_device.intersect(aggregate)
 
-window_size = 307
+
+activations = true_device.activations(np.float32(25.0))
+
+if len(activations) == 0:
+    print 'No activations found.'
+
+with open(data_file, 'r') as data:
+    (window_size, std_dev, max_energy) = [x for x in data.readline().split()]
+    window_size = int(window_size)
+    std_dev = float(std_dev)
+    max_energy = float(max_energy)
+
+print 'Window size: %s' % window_size
+print 'Std dev: %s' % std_dev
+print 'Max power: %s' % max_energy
+
 network = DenoisingAutoencoder(window_size, model_path=model_file,
                                weight_path=weight_file)
 
-std_dev = np.float32(148.485)
 truth_windows = []
 agg_windows = []
 

@@ -138,6 +138,8 @@ def main():
         log.info('Saving weight to: %s' % os.path.join(args.out,
                                                        dev.name + '.h5'))
         network.save_weights(os.path.join(args.out, dev.name + '.h5'))
+        
+        save_network_info(os.path.join(args.out, dev.name + '.dat'), window_size, std_dev, max_power)
 
     return 0
 
@@ -158,6 +160,14 @@ def get_parser():
                         help='Which preprocessing algorithm to use.')
     return parser
 
+def save_network_info(path, window_size, std_dev, max_power):
+    '''
+    Saves network specific data to the path to make it easier to evaluate later accurately.
+    '''
+    path = os.path.abspath(path)
+    with open(path, 'w') as outFile:
+        outFile.write('%s %s %s' % (window_size, std_dev, max_power))
+    
 
 if __name__ == '__main__':
     sys.exit(main())
