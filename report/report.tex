@@ -300,6 +300,12 @@ accuracy as the ratio with summed up overall consumption.
 \subsection{Implementation}
 Our NILM and pre-processing implementations were written in Python, and are publicly available in our \href{https://github.com/CMPUT-466-551-ML-Project/NILM-Project}{NILM-Project} repository.
 
+The original data we used had some periods of missing data, and not all devices were sampled at the same frequency.
+To overcome this, we padded our time-series data to be fully aligned across all devices and the aggregate recording.
+Any missing sample period of less than 600 seconds was padded with the most-recently recorded power value.
+Any missing sample period of more than 600 seconds was thrown out.
+We used this padded data for training and evaluation.
+
 \section{Discussion}
 
 \subsection{Future work and Extension}
