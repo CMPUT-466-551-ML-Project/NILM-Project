@@ -222,7 +222,7 @@ with respect to the known total $Y^t$. This leads to thehis can be easily found 
 %
 \[ \min_{P_1, \dots, P_n \in \mathbf{R}^+} \sum_{t = 1}^T \left( Y^t - \sum_{i = 1}^n I_i^t P_i \right)^2 \]
 %
-In our implementation, we use Scipy's {\it optimize()} method to determine the $P_i$, which uses one of a range of non-linear optimization algorithms.
+In our implementation, we use Scipy's {\it optimize()} method to determine the $P_i$, which uses a sequential least-squares algorithm.
 ​
 \subsection{Estimating Difference Markov Processes}
 ​
