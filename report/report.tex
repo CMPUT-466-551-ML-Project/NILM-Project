@@ -314,6 +314,8 @@ In order to recover the binary on-off indicators for each device from the power 
 If the power signal is over the threshold, we say that the device is on, and if the power signal is below the threshold, we say that the device is off.
 In our implementation, we used a base threshold of 25W across all devices, to account for noise present in the signal.
 
+Our pre-processing algorithms use these recovered binary on-off indicators, along with the padded aggregated data of each home, in order to generate an approximation of the device power usage for use when training our networks.
+
 \section{Discussion}
 
 \subsection{Future work and Extension}
