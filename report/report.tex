@@ -42,7 +42,7 @@ NOTE: sub-metering is the word we want for measuring disaggregated energy signal
 \section{Introduction}
 
 Energy disaggregation, or non-intrusive load-monitoring (NILM), is the problem of estimating a household's individual appliance energy consumption given measurements from a single sensor which records the aggregate power consumption of the household over time.
-While measuring the power draw of each device in a home directly yields more accurate results than machine learned techniques, it usually involves either expensive instrumentation of the devices we wish to measure the energy consumption of, or an intrusion into the home in order to set up power monitoring hardware.
+While measuring the power draw of each device in a home directly yields more accurate results than machine learned techniques, it usually involves either expensive instrumentation of the devices we wish to measure the energy consumption of or an intrusion into the home in order to set up power monitoring hardware.
 Both situations are undesirable for the homeowner, so instead NILM makes use of already existing infrastructure combined with machine learned techniques, in order to provide an estimate of device energy consumption.
 
 Having access to disaggregated energy consumption is useful to homeowners, as studies have shown that when presented with this information, they are more motivated to reduce their energy consumption \cite{Darby}.
@@ -58,7 +58,7 @@ With the rise of the ``Internet of Things'', it seems reasonable that in the nea
 Once collected, these binary indicators can be used along with the aggregate power consumption data to find an approximation to the power draw of each individual device in the household.
 These binary indicators forgo the need for expensive instrumentation in each device to monitor power usage, meaning that training data can be continuously collected by an automated system operating at a large scale.
 
-In this paper, we investigate several different pre-processing algorithms for approximating singe device power usage given a household's aggregate power usage and binary on-off indicators for each device in the home.
+In this paper, we investigate several different pre-processing algorithms for approximating single device power usage given a household's aggregate power usage and binary on-off indicators for each device in the home.
 To evaluate the effect of our pre-processing compared to state-of-the-art NILM algorithms which use single device power consumption, we use a previously-identified neural network architecture based on denoising auto-encoders \cite{Kelly}.
 For each device network, we will train separately on the raw device power usage and the approximate power usage obtained by each pre-processing algorithm.
 We will then compare the output of each device network to a hold-out set, in order determine the performance impact of our pre-processing algorithms on the NILM task.
@@ -84,20 +84,21 @@ Some unsupervised approaches also exist that only use the aggregated energy of t
 %TODO: Should these be the approach name, or something else?
 
 \subsection{Approaches using no information about single device consumption}
-Unsupervised proceedings to disaggregate consumption data reliey mainly on Hidden Markov Models. 
+Unsupervised proceedings to disaggregate consumption data rely mainly on Hidden Markov Models. 
 Kolter \cite{Kolter} uses one Hidden Markov Model per device to describe its consumption and figure out at what time 
 it was active. He finds periods of activity, clusters similar ones and builds a Hidden Markov Model per device. 
-Unfortunately the proceeding to find these periods is not described in detail but seems to look for intervals when only 
-one device is active, what we want to enhance. He states to reach precision values of over 90\% for some devices but since the recall values are not 
-given it is harsh to judge these results. 
-In contrast to this completely unsupervised approach Parson starts with knowledge about the general device type and 
-offers for each device a generic model, which is fitted to the actual device. His biggest benefits are to identify the 
-devices without labeling manually, since his generic models are labeled once and that he compares the house's device with 
-the set of models, whereby it is not necessary to know how many device are in the house. For devices with clearly distinguish patterns 
-(e.g. fridges) Parson reaches F-scores up to 85\% while achieving results under 20\% for unstable devices (e.g. Microwaves)
-Even though his allocation of generic models and minute-wise measurements did not seem useful for us, his work leaded 
-us to the used REDD-dataset 
-and to the idea look for timesteps when only one device changes its activity status.
+Unfortunately the process to find these periods is not described in detail but seems to look for intervals when only 
+one device is active, what we want to enhance. He claims to reach precision values of over 90\% for some devices but since the recall values are not 
+given it is hard to judge these results. 
+In contrast to this completely unsupervised approach, Parson starts with knowledge about the general device type and 
+gives a generic model for each device, which is fitted to the actual device. His biggest benefits are identifying the 
+devices without labeling them manually, since his generic models are labeled once and that he compares the house's device with 
+the set of models, so it is not necessary to know how many device are in the house. For devices with clearly distinguished patterns 
+(e.g. fridges) Parson reaches F-scores up to 85\% while achieving results under 20\% for unstable devices (e.g. Microwaves).
+Even though his allocation of generic models and minute-wise measurements did not seem useful for us, his work led 
+us to the REDD-dataset which he used
+and to the idea of looking for timesteps when only one device changes its activity status.
+
 \subsection{Approaches using information about single device consumption}
 
 %TODO: Citations for this
@@ -108,7 +109,7 @@ Well known is Parson's \cite{Parson} usage of one difference Hidden Markov Model
 consumption and figure out at what time it was active.
 %TODO: Make sure is correct, and possibly cite this
 A dHMM extends traditional Hidden-Markov-Models by additional hidden variables for the difference from the previous 
-to current state. While this approach does not require the disaggreated energy signature per device, it does require 
+to current state. While this approach does not require the disaggregated energy signature per device, it does require 
 prior knowledge in the form of ???
 
 Latest progress was made by applying deep neural nets, where Kelly and Knottenbelt \cite{Kelly} used recurrent neural 
@@ -165,8 +166,7 @@ Another approach that has been used in energy disaggregation is neural networks.
 %Since they get remarkable F-scores of 80\% and higher for some devices we also had a look for signal where this assumption holds.
 
 Unlike many of the other methods, we are assuming that we do not have the disaggregated power signature for each device during the learning stage.
-Instead, we assume to instead have accurate information about when each device is active, due to the trend of the "Internet of Things".
-Where many devices are connected to the internet, and could thus provide information about when they are active.
+Instead, we assume we have accurate information about when each device is active, due to the trend of the "Internet of Things", where many devices are connected to the internet, and could thus provide information about when they are active.
 %TODO: Get paper for this?
 
 
@@ -182,7 +182,7 @@ We check these results against the ones where we subtract the devices which are 
 gives us a bigger than natural noise.\\
 Our goal is to work only with the information if a device is inactive or active, whereby active means that it is actually on and not only in a
 standby mode. To generate the  on/off-indicators we check the dataset against a threshold $\delta$, assigning the device an indicator of $1$ if its 
-consumption in the regarding time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
+consumption in the relevent time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
 eliminates the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
 
 \subsubsection{Denoising Autoencoders}
