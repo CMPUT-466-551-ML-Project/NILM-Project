@@ -127,9 +127,9 @@ def main():
                 activation_len = activation[1] - activation[0]
 
                 synthesize = random.random() > 0.5
-                if synthesize:
+                if synthesize and idx + activation_len < off_len:
                     for i in xrange(activation_len):
-                        if not idx + i < off_len:
+                        if idx + i >= off_len:
                             break
 
                         mod_idx = p[0] + idx + i
