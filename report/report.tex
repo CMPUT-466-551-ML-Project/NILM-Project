@@ -53,8 +53,8 @@ Having access to disaggregated energy consumption is useful to homeowners, as st
 Additionally, this information can be used to identify devices in a home which have become faulty and are in need of repair.
 When a device breaks, changes in its energy consumption patterns can be detected by an automated system, allowing the homeowner to be notified that the device needs servicing.
 
-Most existing machine learning methodologies for NILM are trained using data from households which have been instrumented to record the power consumption of each device separately, in addition to the aggregate household power usage \cite{Kelly}\cite{Cicchetti}.
-However, as noted above, this instrumentation is expensive and makes it difficult to gather new data, with most existing datasets being limited to recording from only a small number of homes \cite{Redd}\cite{Kelly2}.
+Most existing machine learning methodologies for NILM are trained using data from households which have been instrumented to record the power consumption of each device separately, in addition to the aggregate household power usage \cite{Kelly, Cicchetti}.
+However, as noted above, this instrumentation is expensive and makes it difficult to gather new data, with most existing datasets being limited to recording from only a small number of homes \cite{Redd, Kelly2}.
 This lack of data from many homes has the effect of making it difficult to see how well current NILM algorithms generalize to unseen homes, and can be problematic with algorithms which require large amounts of data, such as deep neural network architectures \cite{Kelly}.
 
 The authors of this paper believe it is valuable to explore machine learning techniques which use only the binary on-off indicators of household devices during training, as opposed to the raw power consumption of each device.
@@ -271,7 +271,7 @@ In our implementation, we used a base threshold of 25W across all devices, to ac
 Our pre-processing algorithms use these recovered binary on-off indicators, along with the padded aggregated data of each home, in order to generate an approximation of the device power usage for use when training our networks.
 
 We implemented our neural networks using the Keras library \cite{Keras}.
-Keras is built on top of the Theano library \cite{Theano}\cite{Theano2}.
+Keras is built on top of the Theano library \cite{Theano, Theano2}.
 Our network weights were initialized randomly from a uniform distribution.
 All experiments described in this paper were trained end-to-end from the random initialization.
 The input size of each network was chosen as the average activation length of the device the network was trained against.
