@@ -116,10 +116,8 @@ Another approach that has been used in energy disaggregation is neural networks.
 %Weiss (Source3?) presume the power consumption as a sequence of piecewise constant consumption levels whose differences describe the typical consumption pattern of a distinct device.
 %Since they get remarkable F-scores of 80\% and higher for some devices we also had a look for signal where this assumption holds.
 
-Unlike many of the other methods, we are assuming that we do not have the disaggregated power signature for each device during the learning stage.
-Instead, we assume we have accurate information about when each device is active, due to the trend of the "Internet of Things", where many devices are connected to the internet, and could thus provide information about when they are active.
-%TODO: Get paper for this?
-
+Unlike most other methods, we do not assume that we have the disaggregated power signature for each device during the learning stage.
+Instead, we assume that we have accurate information about when each device is active, in the form of binary on-off indicators.
 
 \subsection{Dataset}
 As a basis to evaluate our approach we used the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption data 
