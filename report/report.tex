@@ -129,19 +129,19 @@ Instead, we assume we have accurate information about when each device is active
 
 
 \subsection{Dataset}
-As a basis to evaluate our approach we use the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption 
-from six houses where the mains, single devices and circuits were measured separately over two weeks. Even though the data set contains high-frequent 
-measurings we use the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
-device exist in every house we focused on the most common ones: dishwasher, washer-dryer-combinations (both in all houses), refridgerator (in 5 
-out of 6 houses) as well as microwave and stove (in all but two houses). Since the sum of all single devices and circuits does not sum up to the 
-measured overall consumption, because small devices like consumer electronics were not traced, we compare two different approaches one with noise 
-and one without. For the unnoised method we sum up only the consumption of the focused devices and take their sum as the aggregated energy consumption. 
-We check these results against the ones where we subtract the devices which are not of interest for us from the measured overall consumption, which 
-gives us a bigger than natural noise.\\
-Our goal is to work only with the information if a device is inactive or active, whereby active means that it is actually on and not only in a
-standby mode. To generate the  on/off-indicators we check the dataset against a threshold $\delta$, assigning the device an indicator of $1$ if its 
-consumption in the relevent time step exceeds the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
-eliminates the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
+As a basis to evaluate our approach we used the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption 
+from six houses where the mains, single devices and circuits were measured separately over two weeks. Even though the data set contains high-frequency 
+measurings we used the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
+devices exist in every house we focused on the most common ones: the dishwasher, washer-dryer-combinations (both in all houses), and refridgerator (in 5 
+out of 6 houses) as well as the microwave and stove (in all but two houses). Since the sum of all single devices and circuits does not sum up to the 
+measured overall consumption, because small devices like consumer electronics were not traced, we compared two different approaches one with noise 
+and one without. For the unnoised method we summed up only the consumption of the devices we used and took their sum as the aggregated energy consumption. 
+We checked these results against the ones where we subtracted the devices which were not of interest for us from the measured overall consumption, which 
+gave us a bigger than natural noise.\\
+Our goal was to work only with the information if a device is inactive or active, whereby active means that it is actually on and not only in a
+standby mode. To generate the  on/off-indicators we checked the dataset against a threshold $\delta$, assigning the device an indicator of $1$ if its 
+consumption in the relevent time step exceeded the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
+eliminated the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
 
 \subsubsection{Denoising Autoencoders}
 
@@ -158,13 +158,13 @@ We also standardized the input before running the neural network. Every input wi
 For resutls, the paper comparing neural networks shows the denoising autoencoder as having a recall score of 94\%, a precision score of 56\%, and thus an F-score of 70\% \cite{Kelly}. Before we ran our experiment based on just the on/off binary information, we ran our denoising autoencoder with the actual disaggregated power consumption as the target output on the REDD dataset attempting to get numbers close to these ones to test that our neural network was working correctly.
 
 \section{Preprocessing}
-
+​
 Robust evaluation metrics are essential to applying supervised learning techniques. Unfortunately, obtaining reasonable metrics is near impossible without actual power outputs of individual devices. Nonetheless, we are still interested in applying supervised approaches, which have a strong history of success in the energy disaggregation literature. Our solution separately estimates the individual power outputs on each device on the training data, as a preprocessing step to train a more powerful prediction algorithm. We emphasize that as a general prediction method, the preprocessing algorithms we describe are not viable, since after the training phase we have no access to device on/off indicators, which are key in obtaining power output.
 
 Inferring general power outputs is an underdetermined problem. Good results can therefore only be obtained by making strict assumptions about the statistical model producing the data. Here, we apply two separate models: The simplest assumes that good estimates are obtained from a constant power estimate, the second that each device is represented by a restricted family of markov processes.
-
-In the sequel, the following notation will be convinient. We shall let $N$ denote the number of devices we are observing, and $T$ the number of time epochs. The random variable $X_i^t$ models the output of the device $i$ at the time $t$, and $Y^t = \sum X_i^t$ denotes the total power output as $t$ ranges over time. We observe both the indicators $I_i^t = \mathbf{I}(X_i^t > 0)$ and $Y^t$ over the range of $i$ and $t$, and must predict the $X_i^t$ to the best of our ability.
-
+​
+In the subsequent section, the following notation will be convenient. We shall let $N$ denote the number of devices we are observing, and $T$ the number of time steps. The random variable $X_i^t$ models the output of the device $i$ at the time $t$, and $Y^t = \sum X_i^t$ denotes the total power output. We observe the indicators $I_i^t = \mathbf{I}(X_i^t > 0)$ and $Y^t$ over the range of $i$ and $t$, and must predict the $X_i^t$ to the best of our ability.
+​
 \subsection{A Constant Power Assumption}
 
 In our first model, we assume that the output of devices are mutually independant, and that the outputs of a specific device are independant and identically distributed with respect to time, given that the device is switched on. The mathematics tells us that there are numbers $P_1, \dots, P_n \in \mathbf{R}^+$ for which $X_i^t \sim P_i + \varepsilon_i$, where $\mathbf{E}(\varepsilon_i) = 0$. Given that the variances $\mathbf{V}(\varepsilon_i)$ are small, it can be inferred that the variables do not deviate far from their average with respect to the $L_2$ norm, and therefore a constant power approximation for each device is accurate. Our problem reduces to finding the values $P_i$. After the $P_i$ are predicted, output estimations are calculated via the equation
@@ -178,6 +178,7 @@ The simplest way to choose the $P_i$ is to minimize the $L_2$ error of our estim
 \[ \hat{Y}^t = \sum_{i = 1}^n \hat{X_i^t} = \sum_{i = 1}^n I_i^t P_i \]
 %
 with respect to the known total $Y^t$. This can be easily found by the optimization
+
 %
 \[ \min_{P_1, \dots, P_n \in \mathbf{R}^+} \sum_{t = 1}^T \left( Y^t - \sum_{i = 1}^n I_i^t P_i \right)^2 \]
 %
@@ -201,21 +202,24 @@ As an extension of the previous model, the power outputs of devices are constant
 
 Mathematically speaking, the outputs $X_i^t$ are drawn from some hidden markov model with states $S^i_0, S^i_1, \dots, S^i_{K_i}$, where $S_0$ is the `off' state ($X_i^t = 0$) and that, given that the markov model is in a state $S^i_k$ at some time $t$, then $X_i^t \sim \mu_i^k + \varepsilon_i^k$, where $\mathbf{E}(\varepsilon_i) = 0$, and $\mu_i^k \in \mathbf{R}^+$ are fixed. Once we have estimated such a model, we may estimate the $X_i^t$ by a best fit method -- calculating the state transition that results in the best fit. We don't ever need to calculate transition probabilities, since our knowledge of the indicator functions effectively removes most of the randomness from the calculation.
 
-Hidden markov chains are still difficult to estimate, so restriction of the markov model's structure is necessary. In words, we restrict the model such that it is unable to transition from any on state to any on state directly -- it must pass through the off state in order to transition to these states. A general diagram for such a markov chain is displayed below. It is hard enough to estimate the means, so we assume that the states of the markov diagram have been given by divine insight -- this is a classic problem; too many states will overfit the data, too few will underfit.
+Hidden markov chains are still difficult to estimate, so restriction of the markov model's structure is necessary. In other words, we restrict the model such that it is unable to transition from any on state to any on state directly -- it must pass through the off state in order to transition to these states. A general diagram for such a markov chain is displayed below. It is hard enough to estimate the means, so we assume that the states of the markov diagram have been given by divine insight -- this is a classic problem; too many states will overfit the data, too few will underfit.
 
 To further reduce the dimensionality of the we, problem follow Kolter's approach to the Markov model problem by considering difference Markov models\footnote{described in [1], in particular during his discussion of additive and factorial markov models}. Rather than working with the data $Y^t$, we choose only to use values $\Delta Y^t := Y^t - Y^{t-1}$ at timepoints $t$ where the $i$'th device switches on ($\mathbf{I}(X_i^{t-1} > 0) = 0$ and $\mathbf{I}(X_i^t > 0) = 1$). Hopefully, this difference describes the average power over the entire interval where the device is switched on. Even if it doesn't, we should have enough data to make these approximations accurate enough on average. At these time points, it is very likely that our device will be the only device to change state, as discussed before, since a continuous time markov chain changes two states very rarely in a short time period. We then attempt to optimize our choice of $\mu_i$ redefining $X_i^{t + k} = \Delta Y^t$, where $X_i^{t + l} > 0$ for $l \in \{0, 1, \dots, k\}$.
 
 Now we shall describe the optimization for a specific device $i$. Suppose that, the device enters a series of intervals of lengths $l_1, \dots, l_M$, taking difference values $\Delta Y^{t_1}, \dots, \Delta Y^{t_M}$ in each interval. We proceed to determine the values $\mu_1, \dots, \mu_K$ by minimizing the $L_2$ best fit over the data.
+
 %
 \begin{equation} \min_{\mu_1, \dots, \mu_K} \sum_{i = 1}^M l_i \min_{k \in \{ 1, \dots, K \}}(\Delta Y^{t_i} - \mu_k)^2 \end{equation}
 %
-There is a geometric interpretations of this minimization. Viewing the $\Delta Y^{t_i}$ as points, each with a `weight' $l_i$, we are attempting to choose the best centers of mass $\mu_1, \dots \mu_K$ which distribute themselves evenly between the points $\Delta Y^{t_i}$.
+There is a geometric interpretation of this minimization. Viewing the $\Delta Y^{t_i}$ as points, each with a `weight' $l_i$, we are attempting to choose the best centers of mass $\mu_1, \dots \mu_K$ which distribute themselves evenly between the points $\Delta Y^{t_i}$.
 
 If we only have one mean to distribute over all $Y^{t_k}$, then the best choice is the weighted mean
 %
 \[ \mu = \frac{\sum_{k = 1}^m l_k Y^{t_k}}{\sum_{k = 1}^m l_k} \]
 %
+
 obtained by differentiating (1) with respect to $\mu$, and simplifying the formula. Now suppose $\mu_1 < \mu_2 < \dots < \mu_K$ is the optimal solution to our problem. If we remove $\mu_K$, then $\mu_1 < \dots < \mu_{K-1}$ is the optimal solution to the subproblem of distributing $K-1$ means among the subset of points who's closest mean is not $\mu_K$ (for otherwise we can move these means to improve our current solution). The optimal choice of $\mu_K$ then becomes the weighted mean of points who are close to $\mu_K$ as possible. Dynamic programming arises from optimal substructure, and we obtain the simple recurrence: If we let $L(m,k)$ be the optimum cost of putting $k$ of the $\mu_i$ in the range $\{ t_1, \dots, t_m \}$, then we may choose an interval $\{ t_p, \dots, t_m \}$ for which $\mu_k$ will be the closest estimate, and then we optimize over $\{ t_1, \dots, t_p \}$ with one less estimate. Our reccurence is
+
 %
 \begin{align*}
     L(m,k) = \min_{k \leq p < m} \bigg\{ L(p,k-1) + \frac{\sum_{j = p+1}^m l_j Y^{t_j}}{\sum_{j = p+1}^m l_j} \bigg\}
@@ -223,31 +227,32 @@ obtained by differentiating (1) with respect to $\mu$, and simplifying the formu
 %
 \[ L(m,1) = \frac{\sum_{j = 1}^m l_j Y^{t_j}}{\sum_{j = 1}^m l_j} \]
 %
+
 If we calculate the weighted mean over time, then we may calculate the recurrence in $O(M^3)$ time. In one swoop, we may recursively calculate the means in quadratic time, reducing the asymptotics to $O(M^2)$. By keeping track of the location of the last means recursively, we can build up the optimal choice of means, and reconstruct our data for use in our neural network.
 
 % We thank Zachary Friggstadt for helping optimize the l_1 norm version of the problem.
 
 \subsection{Evaluation}
 To compare our methods with each other and with existing approaches, we focus on two questions.\\
-1. How well did we identify what devices where active in each time step?\\
-2. How well did we identify the single devices‘ consumption?\\
-To address the first question we use the F1-Score, ensuring our results to be comparable to the works in the section \textit{Literature}. The 
-advantages of the F1-Score to combine recall and precision avoids contortions, which would arise by considering only one of them. Assume we 
+1. How well did we identify which devices were active in each time step?\\
+2. How well did we identify the single devices consumption?\\
+To address the first question we use the F1-Score, ensuring our results are comparable to the works in the section \textit{Literature}. The 
+advantage of the F1-Score is that it combines recall and precision and so avoids contortions, which would arise by considering only one of them. For example, assuming we 
 identify the refridgerator being active in all time steps we get a optimal recall value, but a low precision, whereas we get a optimal precision 
 by identifying the refridgerator never as active.
 \[ \textrm{Precision} = \frac{\textrm{Number of true positive elements}}{\textrm{Number of elements identified as positives}}  \]
 \[ \textrm{Recall} = \frac{\textrm{Number of true positives}}{\textrm{Number of elements that are indeed positive}}  \]
 \[ \textrm{F1-Score} = \frac{2 \cdot \textrm{Precision} \cdot \textrm{Recall}}{\textrm{Precision} + \textrm{Recall}}\]
-For the second question we are interested in the error per timestep and to generate acuuracy-like value. Therefore we
+For the second question we are interested in the error per timestep and to generate an acuuracy-like value. Therefore we
 compare the disaggregated energy consumptions per device with the actual device's consumption we have from the REDD
 dataset. Following \cite{Redd} we can compute the accuracy depending on the summed absolute deviation in relation to 
 the overall consumption:
 \[\textrm{Accuracy}_{abs} = 1- \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{2 \sum^{T}_{t=1}Y_t} .  \]
-The error per timestep can be similarly described as the absolute squared error:
+The error per timestep can be similarly described as the absolute error:
 \[\textrm{ASE} = \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{T \cdot n} .  \]
 While the absolute error weights all differences regardless of their size the same, we also want information about the accuracy when 
 weighting bigger deviations higher than smaller ones. We use the root squared error instead of the squared error 
-to stay within the same unit. Therewith we calculate the root mean squared error as the error per timestep and similar a respective 
+to stay within the same unit. Therefore we calculate the root mean squared error as the error per timestep and similarly a respective 
 accuracy as the ratio with summed up overall consumption.
 \[\textrm{RMSE} = \sqrt{\frac{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}{T \cdot n}} .  \]
 \[\textrm{Accuracy}_{rse} = 1- \frac{\sqrt{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}}{2 \sum^{T}_{t=1}Y_t} .  \]
@@ -295,6 +300,7 @@ All experiments described in this paper were trained end-to-end from the random 
 The input size of each network was chosen as the average activation length of the device the network was trained against.
 The input size was bounded to a maximum 1500 seconds, due to memory constraints on the machines the networks were trained on.
 
+
 \section{Discussion}
 
 \subsection{Future work and Extension}
@@ -308,6 +314,6 @@ Another possible extension to this project would be to add more information to t
 % Generate the bibliography.
 
 \bibliography{biblio}
-\bibliographystyle{aaai}
+\bibliographystyle{plain}
 
 \end{document}
