@@ -305,9 +305,9 @@ The results after training with synthetic data are in Table-\ref{tab:RawEstimate
 	$$\begin{tabular}{c||c|c|c|c|c|}
 	Device & Total RMSE & f\_score & \% active & Activation RMSE & Maximum Energy usage\\
 	\hline
-	Kitchen Outlets & 71.145 & 0.6087 & 1.4\% & 76.398 & 1582.0  \\ % Is house 3 channel 7
+	Kitchen Outlets & 71.145 & 0.6087 & 72.2\% & 76.398 & 1582.0  \\ % Is house 3 channel 7
 	\hline
-	Washer \& Dryer & 566.0  & 0.02160  & 72.2\% & 1357.28 & 3222.5  \\ % Is house 1 channel 20
+	Washer \& Dryer & 566.0  & 0.02160  & 1.4\% & 1357.28 & 3222.5  \\ % Is house 1 channel 20
 	\hline
 	Oven & 287.830 & 0.0196 & 1.2\% & 1103.43 & 1710.0  \\ % Is house 1 channel 3
 	\hline
@@ -359,15 +359,21 @@ Edge & 88.9079 \\
 Markov & 90.9915 \\
 \hline
 \end{tabular}$$
-\captionof{table}{RMSE of Preprocess Generated Signature vs Actual} \label{tab:PreprocessVsRawRMSE}
+\captionof{table}{RMSE of Preprocessed Generated Signature vs Actual} \label{tab:PreprocessVsRawRMSE}
 \end{table*}
 
 
-\section{Discussion} \label{sec:Discussion}
+\section{Discussion}
 
 For many devices, the neural network will guess approximately constant value rather than accounting for the device being on or off.
-This causes the overall estimation to perform badly with precision which causes a low f\_score, a example is in Figure-\ref{fig:KitchenOutlets}.
+This causes the overall estimation to perform badly with precision which causes a low f\_score, a example is in Figure-\ref{fig:KitchenOutlets}, how the estimate and synthesized estimate are essentially constant.
 This causes some of the devices, like the Oven, to not even have a f\_score, due to it never estimating a energy usage high enough to be counted as the device being on.
+
+We hypothesize that this occurs due to not having enough examples where the device was on for training. In Figure-\ref{fig:WasherDryer}, the synthesized estimate does much better, with it correctly estimating where the Washer \& Dryer were not on.
+
+For the different preprocessing algorithms, it does not appear that one is far better than the others. The Edge method does very well in general, with its RMSE when running the neural network being only 1.03 times higher on average, and it also produces the device signature that is closest to the true signature. However, it does not always correctly identify that a device is running, with it incorrectly saying that 43.75\% of devices we tested it with did not have any energy usage.
+
+In the cases where the Edge method were to say that a device had no energy signature, one possible solution to avoid this misidentification would be to then use the Markov method to check if the device actually doesn't have any activations, since the Markov method accurately determined if a device used power for all of the examples, and it performed the second best on relative Mean RMSE for the networks, and the second closest device signature to actual signature.
 
 \begin{figure}
 
