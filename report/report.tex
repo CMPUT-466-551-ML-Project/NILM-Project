@@ -105,9 +105,7 @@ and to the idea of looking for timesteps when only one device changes its activi
 %\subsubsection{Baranski's Algorithm}
 
 \subsection{Neural Networks}
-​
 Another approach that has been used in energy disaggregation is neural networks. For example, \cite{Ruzzelli} used simple, three-layer neural networks on the problem but used more information than we had about the appliances as input, including information about the current and voltage. We did not pursue this technique since, with just the power consumption as input, the main way to distinguish appliances is via patterns over time and a simple neural network has no way to do this. Another type of neural network which is an obvious choice for this problem and which we initially considered using is deep, recurrent networks. This method had been tried  before by \cite{Kelly} which experimented with using recurrent neural networks for energy disaggregation. Its net used a bidirectional long short term memory architecture \cite{Kelly}, which involves a memory unit with input, output, and feedback gates and is intended to overcome the problem of vanishing gradients over long sequences of inputs. Although the recurrent neural network produced reasonable results with recall and precision scores of 0.85\% and 0.36\% and thus a F-score of 51\%, \cite{Kelly} experimented with several types of neural networks, and this one did not produce the best results. In particular it performed poorly on appliances with more than the two, on/off states. The neural network we used, which falls into a category called denoising autoencoders, was based on another of the nets \cite{Kelly} tested which outperformed the recurrent neural network. The paper, which discusses generating aggregate data by randomly recombining sections of the power consumption of single devices, is also the source of our idea to experiment with using synthetic power consumption data to deal with the problem that deep neural networks need very large amounts of data to train on \cite{Kelly}.
-
 
 \section{Approach}
 
@@ -149,13 +147,12 @@ We also standardized the input before running the neural network. Every input wi
 For resutls, the paper comparing neural networks shows the denoising autoencoder as having a recall score of 94\%, a precision score of 56\%, and thus an F-score of 70\% \cite{Kelly}. Before we ran our experiment based on just the on/off binary information, we ran our denoising autoencoder with the actual disaggregated power consumption as the target output on the REDD dataset attempting to get numbers close to these ones to test that our neural network was working correctly.
 
 \subsection{Preprocessing}
-​
 Robust evaluation metrics are essential to applying supervised learning techniques. Unfortunately, obtaining reasonable metrics is near impossible without actual power outputs of individual devices. Nonetheless, we are still interested in applying supervised approaches, which have a strong history of success in the energy disaggregation literature. Our solution separately estimates the individual power outputs on each device on the training data, as a preprocessing step to train a more powerful prediction algorithm. We emphasize that as a general prediction method, the preprocessing algorithms we describe are not viable, since after the training phase we have no access to device on/off indicators, which are key in obtaining power output.
 
 Inferring general power outputs is an underdetermined problem. Good results can therefore only be obtained by making strict assumptions about the statistical model producing the data. Here, we apply two separate models: The simplest assumes that good estimates are obtained from a constant power estimate, the second that each device is represented by a restricted family of markov processes.
-​
+
 In the subsequent section, the following notation will be convenient. We shall let $N$ denote the number of devices we are observing, and $T$ the number of time steps. The random variable $X_i^t$ models the output of the device $i$ at the time $t$, and $Y^t = \sum X_i^t$ denotes the total power output. We observe the indicators $I_i^t = \mathbf{I}(X_i^t > 0)$ and $Y^t$ over the range of $i$ and $t$, and must predict the $X_i^t$ to the best of our ability.
-​
+
 \subsubsection{A Constant Power Assumption}
 
 In our first model, we assume that the output of devices are mutually independant, and that the outputs of a specific device are independant and identically distributed with respect to time, given that the device is switched on. The mathematics tells us that there are numbers $P_1, \dots, P_n \in \mathbf{R}^+$ for which $X_i^t \sim P_i + \varepsilon_i$, where $\mathbf{E}(\varepsilon_i) = 0$. Given that the variances $\mathbf{V}(\varepsilon_i)$ are small, it can be inferred that the variables do not deviate far from their average with respect to the $L_2$ norm, and therefore a constant power approximation for each device is accurate. Our problem reduces to finding the values $P_i$. After the $P_i$ are predicted, output estimations are calculated via the equation
