@@ -82,6 +82,8 @@ def main():
     for dev in device_in:
         agg_data = TimeSeries()
         agg_data.array = agg_orig.array.copy()
+        dev_orig = TimeSeries()
+        dev_orig.array = dev.array.copy()
 
         log.info('Training: %s' % dev.name)
         activations = dev.activations(np.float32(25.0))
@@ -115,10 +117,6 @@ def main():
         window_size = min(1500, window_size)
         window_size = max(8, window_size)
 
-        log.info('Computing windows...')
-        std_dev = np.std(np.random.choice(agg_data.powers, 10000))
-        max_power = dev.powers.max()
-
         log.info('Synthesizing data...')
         for p in off_periods:
             idx = 0
@@ -141,6 +139,10 @@ def main():
 
                 idx += activation_len
 
+        log.info('Computing windows...')
+        std_dev = np.std(np.random.choice(agg_data.powers, 10000))
+        max_power = dev.powers.max()
+
         log.info('Std Dev: %s' % std_dev)
         log.info('Max Power: %s' % max_power)
         for i in xrange(0, length - window_size + 1, window_size):
@@ -150,13 +152,21 @@ def main():
                 continue
 
             dev_window = np.divide(dev.powers[i+3:i+window_size-3], max_power)
+            dev_window_orig = np.divide(dev_orig.powers[i+3:i+window_size-3], max_power)
+
             agg_window = agg_data.powers[i:i+window_size]
+            agg_window_orig = agg_orig.powers[i:i+window_size]
 
             mean = agg_window.mean(axis=None)
             agg_window = np.divide(np.subtract(agg_window, mean), std_dev)
 
+            mean = agg_window_orig.mean(axis=None)
+            agg_window_orig = np.divide(np.subtract(agg_window_orig, mean), std_dev)
+
             dev_windows.append(dev_window)
+            dev_windows.append(dev_window_orig)
             agg_windows.append(agg_window)
+            agg_windows.append(agg_window_orig)
 
         agg_windows = np.array(agg_windows)
         dev_windows = np.array(dev_windows)
