@@ -428,6 +428,9 @@ table
 \end{figure}
 
 \subsection{Future Work}
+The simplest direction for future work is to continue to tweak the current network, and see how well it does when trained against a larger dataset.
+One potential dataset is UK-DALE \cite{Kelly2}, which measures the power usage from 5 homes with a duration up to 655 days, which is much longer than REDD \cite{Redd}, which was measured over approximately 14 days.
+Additionally, investigation into improved data synthesis algorithms or generative models are likely to yield performance increases, by allowing us to generate additional data for the network to train on, potentially targeting scenarios of device usage which did not occur in the dataset.
 
 Another possible extension to this project would be to add more information to the input of the neural network, such as the time of day and day of the week of the input window since certain appliances are more likely to be activated at certain times. Another option would be to find a way to include the information of what the mean of the input window was while still standardizing each input window by subtracting its mean\cite{Kelly}, perhaps by standardizing the power consumption used as the input and then adding the mean as a single number at the end of the input. However, it is not easy to see where the best place to insert this information into the denoising autoencoder architecture would be. Some experimentation would likely be necessary to find an architecture that made effective use of the new information.
 
