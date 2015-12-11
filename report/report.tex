@@ -23,6 +23,7 @@
 
 \title{Energy Disaggregation}
 \author{Henry Agsten, Jacob Denson, Jesse Huard, Isabel McCarten, Morgan Redshaw}
+
 \date{}
 
 \begin{document}
@@ -43,7 +44,7 @@ NOTE: sub-metering is the word we want for measuring disaggregated energy signal
 \section{Introduction}
 
 Energy disaggregation, or non-intrusive load-monitoring (NILM), is the problem of estimating a household's individual appliance energy consumption given measurements from a single sensor which records the aggregate power consumption of the household over time.
-While measuring the power draw of each device in a home directly yields more accurate results than machine learned techniques, it usually involves either expensive instrumentation of the devices we wish to measure the energy consumption of or an intrusion into the home in order to set up power monitoring hardware.
+While measuring the power draw of each device in a home directly yields more accurate results than machine learned techniques, it usually involves expensive instrumentation of the devices we wish to measure the energy consumption of and intrusion into the home in order to set up power monitoring hardware.
 Both situations are undesirable for the homeowner, so instead NILM makes use of already existing infrastructure combined with machine learned techniques, in order to provide an estimate of device energy consumption.
 
 Having access to disaggregated energy consumption is useful to homeowners, as studies have shown that when presented with this information, they are more motivated to reduce their energy consumption \cite{Darby}.
@@ -61,8 +62,8 @@ These binary indicators forgo the need for expensive instrumentation in each dev
 
 In this paper, we investigate several different pre-processing algorithms for approximating single device power usage given a household's aggregate power usage and binary on-off indicators for each device in the home.
 To evaluate the effect of our pre-processing compared to state-of-the-art NILM algorithms which use single device power consumption, we use a previously-identified neural network architecture based on denoising auto-encoders \cite{Kelly}.
-For each device network, we will train separately on the raw device power usage and the approximate power usage obtained by each pre-processing algorithm.
-We will then compare the output of each device network to a hold-out set, in order determine the performance impact of our pre-processing algorithms on the NILM task.
+For each device network, we trained separately on the raw device power usage and the approximate power usage obtained by each pre-processing algorithm.
+We then compared the output of each device network to a hold-out set, in order determine the performance impact of our pre-processing algorithms on the NILM task.
 
 \section{Related Work}
 
@@ -74,28 +75,18 @@ There have been supervised approaches using the disaggregated energy\cite{Kelly}
 Some unsupervised approaches also exist that only use the aggregated energy of the overall house \cite{Kolter}.
 %TODO: Mention something about related approaches or similar ideas?
 
-%\subsection{Independent Component Analysis}
-
-%TODO: Soundwaves is the wrong word
-%To use ICA, we would need to assume that the signature for each device is statistically independent, which is unfortunately not true.
-%TODO: Find citation for this
-%As well, ICA performs best when there are multiple different 'sound waves', but with NILM there would only be the power being used by the house for each timestep.
-%Thus, we believe that applying independent component analysis will not achieve significantly better results to existing methods.
-
-%TODO: Should these be the approach name, or something else?
-
 \subsection{Hidden Markov Models}
 Hidden Markov Models are one of the main categories of methods used for energy dissagregation.
 For example, \cite{Kolter} used one Hidden Markov Model per device to describe its consumption and figure out what time 
-it was active at. Kolter's algorithm finds periods of activity, clusters similar ones and builds one hidden Markov model per device. 
+it was active at. Kolter's algorithm finds periods of activity, clusters similar ones and builds one hidden Markov model per device \cite{Kolter}. 
 Unfortunately the process to find these periods is not described in detail but seems to look for intervals when only 
-one device is active. For some devices, \cite{} claims to reach precision values of over 90\%, but since the recall values are not 
+one device is active. For some devices, \cite{Kolter} claims to reach precision values of over 90\%, but since the recall values are not 
 given it is hard to judge these results. 
 
 In contrast to this completely unsupervised approach, Parson starts with knowledge about the general device type and 
 produces a generic model for each device, which is fitted to the actual device. The generic and fitted models are difference hidden Markov models which have a second observation sequence representing the difference in power consumption between two time steps. The algorithm's biggest benefits are that it identifys the 
 devices without labeling them manually unlike most unsupervised methods in which the output dissagregated power consumption for some device has to be manually matched with a real-life device, and that it does not require the assumption that the number of devices in the house is known. For devices with clearly distinguished patterns 
-(e.g. fridges) Parson reaches F-scores up to 85\% while achieving results under 20\% for unstable devices (e.g. Microwaves).
+(e.g. fridges) Parson reaches F-scores up to 85\%, while achieving results under 20\% for unstable devices (e.g. Microwaves).
 Even though his allocation of generic models and minute-wise measurements did not seem useful for us, his work led 
 us to the REDD-dataset which he used
 and to the idea of looking for timesteps when only one device changes its activity status.
@@ -113,7 +104,7 @@ and to the idea of looking for timesteps when only one device changes its activi
 
 \subsubsection{Neural Networks}
 ​
-Another approach that has been used in energy disaggregation is neural networks. For example, \cite{Ruzzelli} used simple, three-layer neural networks on the problem but used more information than we had about the appliances as input, including information about the current and voltage. We did not pursue this technique since, with just the power consumption as input, the main way to distinguish appliances is via patterns over time and a simple neural network has no way to do this. Another type of neural network which is an obvious choice for this problem and which we initially considered using is deep, recurrent networks. This method had been tried  before by \cite{Kelly} which experimented with using recurrent neural networks for energy disaggregation. Its net used a bidirectional long short term memory architecture \cite{Kelly}, which involves a memory unit with input, output, and feedback gates and is intended to overcome the problem of vanishing gradients over long sequences of inputs. Although the recurrent neural network produced reasonable results with recall and precision scores of 0.85\% and 0.36\% and thus a F-score of 51\%, \cite{Kelly} experimented with several types of neural networks, and this one did not produce the best results. In particular it performed poorly on appliances with more than the two, on/off states. The neural network we used, which falls into a category called denoising autoencoders, was based on another of the nets \cite{Kelly} tested which outperformed the recurrent neural network. This paper, which discusses generating aggregate data by randomly recombining sections of the power consumption of single devices, is also the source of our idea to experiment with using synthetic power consumption data to deal with the problem that deep neural networks need very large amounts of data to train on \cite{Kelly}.
+Another approach that has been used in energy disaggregation is neural networks. For example, \cite{Ruzzelli} used simple, three-layer neural networks on the problem but used more information than we had about the appliances as input, including information about the current and voltage. We did not pursue this technique since, with just the power consumption as input, the main way to distinguish appliances is via patterns over time and a simple neural network has no way to do this. Another type of neural network which is an obvious choice for this problem and which we initially considered using is deep, recurrent networks. This method had been tried  before by \cite{Kelly} which experimented with using recurrent neural networks for energy disaggregation. Its net used a bidirectional long short term memory architecture \cite{Kelly}, which involves a memory unit with input, output, and feedback gates and is intended to overcome the problem of vanishing gradients over long sequences of inputs. Although the recurrent neural network produced reasonable results with recall and precision scores of 0.85\% and 0.36\% and thus a F-score of 51\%, \cite{Kelly} experimented with several types of neural networks, and this one did not produce the best results. In particular it performed poorly on appliances with more than the two, on/off states. The neural network we used, which falls into a category called denoising autoencoders, was based on another of the nets \cite{Kelly} tested which outperformed the recurrent neural network. The paper, which discusses generating aggregate data by randomly recombining sections of the power consumption of single devices, is also the source of our idea to experiment with using synthetic power consumption data to deal with the problem that deep neural networks need very large amounts of data to train on \cite{Kelly}.
 
 
 \section{Our Stuff}
@@ -129,9 +120,9 @@ Instead, we assume we have accurate information about when each device is active
 
 
 \subsection{Dataset}
-As a basis to evaluate our approach we used the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption 
+As a basis to evaluate our approach we used the Reference Energy Disaggregation Data Set (REDD) \cite{Redd}, a collection of energy consumption data 
 from six houses where the mains, single devices and circuits were measured separately over two weeks. Even though the data set contains high-frequency 
-measurings we used the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
+measurements we used the ones with frequencies between $1$ and $3 Hz$, to stay comparable to former works with similar frequencies. Since not all 
 devices exist in every house we focused on the most common ones: the dishwasher, washer-dryer-combinations (both in all houses), and refridgerator (in 5 
 out of 6 houses) as well as the microwave and stove (in all but two houses). Since the sum of all single devices and circuits does not sum up to the 
 measured overall consumption, because small devices like consumer electronics were not traced, we compared two different approaches one with noise 
