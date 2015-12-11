@@ -84,9 +84,9 @@ Kolter's algorithm finds periods of device activity, and clusters similar period
 Unfortunately the algorithm to find these periods is not described in detail, though Kolter seems to find them by looking for intervals when only one device is active.
 For some devices, \cite{Kolter} claims to reach precision values of over 90\%, but since the recall values are not given it is hard to judge these results.
 
-In contrast to this completely unsupervised approach, Parson starts with knowledge about the general device type and produces a generic model for each device, which is then fitted to the actual device.
-The generic and fitted models are difference hidden Markov models which have a second observation sequence representing the difference in power consumption between two time steps.
-The algorithm's biggest benefit is that it identifies the devices without the need for manual labeling, unlike most unsupervised methods in which the output disaggregated power consumption for some device has to be manually matched with an existing device.
+In contrast to this completely unsupervised approach, Parson \cite{Parson} starts with knowledge about the general device type and produces a generic model for each device, which is then fitted to the actual device.
+The generic and fitted models are difference hidden Markov models \cite{Kolter} which have a second observation sequence representing the difference in power consumption between two time steps.
+The algorithm's biggest benefit is that it identifies the devices without the need for manual labelingn \cite{Parson}, unlike most unsupervised methods in which the output disaggregated power consumption for some device has to be manually matched with an existing device.
 The algorithm also has the advantage that it does not require the assumption that the number of devices in the house is known.
 For devices with clearly distinguished patterns (e.g. fridges) Parson reaches F-scores up to 85\%, while achieving results under 20\% for unstable devices (e.g. microwaves).
 Even though his allocation of generic models and minute-wise measurements did not seem useful for our approach, Parson's work led us to the REDD-dataset and to the idea of looking for timesteps when only one device changes its activity status.
@@ -224,19 +224,12 @@ identify the refrigerator being active in all time steps we get a optimal recall
 \[ \textrm{Precision} = \frac{\textrm{Number of true positive elements}}{\textrm{Number of elements identified as positives}}  \]
 \[ \textrm{Recall} = \frac{\textrm{Number of true positives}}{\textrm{Number of elements that are indeed positive}}  \]
 \[ \textrm{F1-Score} = \frac{2 \cdot \textrm{Precision} \cdot \textrm{Recall}}{\textrm{Precision} + \textrm{Recall}}\]
-For the second question we are interested in the error per timestep and to generate an acuuracy-like value. Therefore we
+For the second question we are interested in the error per timestep. Therefore we
 compare the disaggregated energy consumptions per device with the actual device's consumption we have from the REDD
-dataset. Following \cite{Redd} we can compute the accuracy depending on the summed absolute deviation in relation to 
-the overall consumption:
-\[\textrm{Accuracy}_{abs} = 1- \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{2 \sum^{T}_{t=1}Y_t} .  \]
-The error per timestep can be similarly described as the absolute error:
-\[\textrm{ASE} = \frac{\sum^{T}_{t=1}\sum^{N}_{n=1}|\hat{y}^{(n)}_t-y^{(n)}_t|}{T \cdot n} .  \]
-While the absolute error weights all differences regardless of their size the same, we also want information about the accuracy when 
-weighting bigger deviations higher than smaller ones. We use the root squared error instead of the squared error 
-to stay within the same unit. Therefore we calculate the root mean squared error as the error per timestep and similarly a respective 
-accuracy as the ratio with summed up overall consumption.
+dataset. 
+To weight bigger deviations higher than smaller ones, we square the differences and use the root mean squared error instead of the mean squared error to stay within the same unit and thereby comparable. Since we are interested in the error over all devices and timesteps we average over the number of devices and the length of our timeseries
 \[\textrm{RMSE} = \sqrt{\frac{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}{T \cdot n}} .  \]
-\[\textrm{Accuracy}_{rse} = 1- \frac{\sqrt{\sum^{T}_{t=1}\sum^{N}_{n=1}(\hat{y}^{(n)}_t-y^{(n)}_t)^2}}{2 \sum^{T}_{t=1}Y_t} .  \]
+
 
 
 \subsection{Implementation}
