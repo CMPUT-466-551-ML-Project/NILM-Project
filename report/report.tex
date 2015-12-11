@@ -286,39 +286,44 @@ This algorithm has the effect of adding many more device activations to the trai
 In addition to training on synthetic data, we preserve the original aggregate and device power signals, which are also used during training.
 After testing against the hold-out set, this method seems promising, with our networks being better able to differentiate against the device being on versus being off.
 There are still some issues with this approach, such as the network predicting a large constant power consumption when a device is turned off, and being insensitive to some of the same devices as the original network.
-However, after adjusting for this constant power off-set, we see perfomance increases on the NILM task.
+However, after adjusting for this constant power off-set, we see performance increases on the NILM task.
 This leads us to believe that training on larger datasets or investigating better data synthesis algorithms are likely to lead to improvements in the network's performance.
 The results after training with synthetic data are in Table-\ref{tab:RawEstimateAfterGenerate}.
 
 \begin{table*}[t]
 	\centering
-	
-%TODO: Add label? and such. This needs to be at top of page.....
-$$\begin{tabular}{c||c|c|c|c|c|}
-Device & Total RMSE & f\_score & Activation RMSE & Maximum Energy usage & \% time active\\ %TODO: Add recall, precision?
-\hline
-kitchen outlets & 71.78 & 0.6087 & 79.49  & 1582.0 & 72.2\% \\ % Is house 3 channel 7
-\hline
-washer \& dryer & 209.3 & 0.233 & 1657.61  & 3222.5 & 1.4\% \\ % Is house 1 channel 20
-\hline
-\end{tabular}$$
-\captionof{table}{Table Title}\label{tab:RawEstimate} 
-\end{table*}
-
-%TODO: Fill in the data for this
-\begin{table*}[t]
-	\centering
-	
-	%TODO: Add label? and such. This needs to be at top of page.....
 	$$\begin{tabular}{c||c|c|c|c|c|}
-	Device & Total RMSE & f\_score & Activation RMSE & Maximum Energy usage & \% time active\\ %TODO: Add recall, precision?
+	Device & Total RMSE & f\_score & \% time active& Activation RMSE & Maximum Energy usage \\
 	\hline
-	kitchen outlets & &  &  & &  \\ % Is house 3 channel 7
+	Kitchen Outlets & 71.781 & 0.6087 & 72.2\% & 79.489  & 1582.0  \\ % Is house 3 channel 7
 	\hline
-	washer \& dryer & &  &  & &  \\ % Is house 1 channel 20
+	Washer \& Dryer  & 209.3 & 0.233 & 1.4\% & 1657.61  & 3222.5 \\ % Is house 1 channel 20
+	\hline
+	Oven & 165.001 & N/A & 1.2\% & 1500.33  & 1710.0  \\ % Is house 1 channel 3
+	\hline
+	Lighting & 91.739 & 0.6547 & 78.6\% & 97.199  & 2246.0  \\ % Is house 2 channel 9
 	\hline
 	\end{tabular}$$
-	\captionof{table}{Table Title}\label{tab:RawEstimateAfterGenerate} 
+	
+	\captionof{table}{Auto Encoder Performance With True Device Signatures} \label{tab:RawEstimate} 
+\end{table*}
+
+\begin{table*}[t]
+	\centering
+	$$\begin{tabular}{c||c|c|c|c|c|}
+	Device & Total RMSE & f\_score & \% active & Activation RMSE & Maximum Energy usage\\
+	\hline
+	Kitchen Outlets & 71.145 & 0.6087 & 1.4\% & 76.398 & 1582.0  \\ % Is house 3 channel 7
+	\hline
+	Washer \& Dryer & 566.0  & 0.02160  & 72.2\% & 1357.28 & 3222.5  \\ % Is house 1 channel 20
+	\hline
+	Oven & 287.830 & N/A & 1.2\% & 1103.43 & 1710.0  \\ % Is house 1 channel 3
+	\hline
+	Lighting & 91.181 & 0.6547 & 78.6\% & 95.631  & 2246.0  \\ % Is house 2 channel 9
+	\hline
+	\end{tabular}$$
+	
+	\captionof{table}{Auto Encoder Performance With True Device Signatures, synthetic data} \label{tab:RawEstimateAfterGenerate} 
 \end{table*}
 
 Next, we compared the error for the different preprocessing steps in two different ways.
@@ -329,24 +334,24 @@ For this table, we can assume that the lower the RMSE, the better the preprocess
 \begin{table*}[t]
 	\centering
 	
-$$\begin{tabular}{c||c|c|c|c|c|c|c|}
-Method & Best RMSE & Worst RMSE & Best f\_score & Worst f\_score & Mean RMSE & Mean f\_score & \% Kept\\
-\hline
-Constant & 0.9377 & 2.4089 & 1.495 & 0.6011 & 1.1266 & 1.0329 & 100\% \\
-\hline
-Interval & 0.9595 & 1.7014 & 1.0007 & 0.0054 & 1.087 & 0.7448 & 93.75\% \\
-\hline
-Edge & 0.8587 & 1.2323 & 1.2325 & 0.2141 & 1.0384 & 0.7698 & 56.25\%  \\
-\hline
-Markov & 0.9531 & 1.2217 & 0.7199 & 0.3015 & 1.061 & 0.4769 & 100\%  \\
-\hline
-\end{tabular}$$
-
-\captionof{table}{Preprocessing Relative to Original over All Data}\label{tab:PreproccesVsRawNetworkError} 
+	$$\begin{tabular}{c||c|c|c|c|c|c|c|}
+	Method & Best RMSE & Worst RMSE & Best f\_score & Worst f\_score & Mean RMSE & Mean f\_score & \% Kept\\
+	\hline
+	Constant & 0.9377 & 2.4089 & 1.495 & 0.6011 & 1.1266 & 1.0329 & 100\% \\
+	\hline
+	Interval & 0.9595 & 1.7014 & 1.0007 & 0.0054 & 1.087 & 0.7448 & 93.75\% \\
+	\hline
+	Edge & 0.8587 & 1.2323 & 1.2325 & 0.2141 & 1.0384 & 0.7698 & 56.25\%  \\
+	\hline
+	Markov & 0.9531 & 1.2217 & 0.7199 & 0.3015 & 1.061 & 0.4769 & 100\%  \\
+	\hline
+	\end{tabular}$$
+	
+	\captionof{table}{Preprocessing Relative to Original over All Data} \label{tab:PreproccesVsRawNetworkError} 
 \end{table*}
 
 
-\begin{table}
+\begin{table*}[t]
 	\centering
 	
 %Label: Methods comparison vs training relative to training with raw data. Over part of data
@@ -362,11 +367,11 @@ Edge & 88.9079 \\
 Markov & 90.9915 \\
 \hline
 \end{tabular}$$
-\captionof{table}{Table Title}\label{tab:PreprocessVsRawRMSE}
-\end{table}
+\captionof{table}{RMSE of Preprocess Generated Signature vs Actual} \label{tab:PreprocessVsRawRMSE}
+\end{table*}
 
 
-\section{Discussion}
+\section{Discussion} \label{sec:Discussion}
 
 For many devices, the neural network will guess approximately constant value rather than accounting for the device being on or off.
 The network will generally guess 
@@ -375,7 +380,6 @@ An example is in figure XXXX
 This causes some of the devices, like XXXXX, to not even have a precision value, due to it never estimating a energy usage high enough to be counted as the device being on.
 
 \begin{figure}
-
 
 \pgfplotsset{legend style={line width=1pt}}
 \begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
@@ -433,8 +437,7 @@ table
 \captionof{figure}{Energy Estimation for Washer \& Dryer}
 \end{figure}
 
-
-Extension to Baranski's Algorithm?.
+\subsection{Future Work}
 
 HMM depending on how well that goes
 
