@@ -104,7 +104,7 @@ and to the idea of looking for timesteps when only one device changes its activi
 
 %\subsubsection{Baranski's Algorithm}
 
-\subsubsection{Neural Networks}
+\subsection{Neural Networks}
 ​
 Another approach that has been used in energy disaggregation is neural networks. For example, \cite{Ruzzelli} used simple, three-layer neural networks on the problem but used more information than we had about the appliances as input, including information about the current and voltage. We did not pursue this technique since, with just the power consumption as input, the main way to distinguish appliances is via patterns over time and a simple neural network has no way to do this. Another type of neural network which is an obvious choice for this problem and which we initially considered using is deep, recurrent networks. This method had been tried  before by \cite{Kelly} which experimented with using recurrent neural networks for energy disaggregation. Its net used a bidirectional long short term memory architecture \cite{Kelly}, which involves a memory unit with input, output, and feedback gates and is intended to overcome the problem of vanishing gradients over long sequences of inputs. Although the recurrent neural network produced reasonable results with recall and precision scores of 0.85\% and 0.36\% and thus a F-score of 51\%, \cite{Kelly} experimented with several types of neural networks, and this one did not produce the best results. In particular it performed poorly on appliances with more than the two, on/off states. The neural network we used, which falls into a category called denoising autoencoders, was based on another of the nets \cite{Kelly} tested which outperformed the recurrent neural network. The paper, which discusses generating aggregate data by randomly recombining sections of the power consumption of single devices, is also the source of our idea to experiment with using synthetic power consumption data to deal with the problem that deep neural networks need very large amounts of data to train on \cite{Kelly}.
 
@@ -134,7 +134,7 @@ standby mode. To generate the  on/off-indicators we checked the dataset against 
 consumption in the relevent time step exceeded the threshhold and considering the device as inactive otherwise, assigning $0$. Using the threshold 
 eliminated the uninteresting phases of permant standby uses, as they are common especially in refridgerators.
 
-\subsubsection{Denoising Autoencoders}
+\subsection{Denoising Autoencoders}
 
 The neural network we used, as mentioned above, belongs to a type called denoising autoencoders and is based on the one from \cite{Kelly}. An autoencoder is a type of neural network with input and output layers the same size and a smaller hidden layer between them where the input and the target are the same. As a result the output of the hidden layer is effectively a compressed encoding of the original data. A denoising autoencoder is one where the input is a corrupted version of the signal, and the output is checked against the uncorrupted version. They are typically used to remove grain and noise from photos and sound recordings. 
 
