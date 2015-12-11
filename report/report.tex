@@ -71,6 +71,7 @@ We then compared the output of each device network to a hold-out set, in order d
 
 %NOTE: Should focus on research relevant to ours. Don't know how much there is.
 %TODO: Should also outline one or two unsupervised approaches.
+
 During our literature review, we found no other NILM studies which used only the binary on-off indicators of each device along with the aggregated power usage.
 %TODO: Cite all of these
 There have been supervised approaches using the disaggregated energy\cite{Kelly} or energy signatures \cite{Parson} for each device.
@@ -78,10 +79,11 @@ Some unsupervised approaches also exist that only use the aggregated energy of t
 %TODO: Mention something about related approaches or similar ideas?
 
 \subsection{Hidden Markov Models}
+
 Hidden Markov models are one of the main categories of methods used for energy disaggregation.
 For example, \cite{Kolter} used one hidden Markov model per device to describe its power consumption, in order to determine which times the device was active at.
 Kolter's algorithm finds periods of device activity, and clusters similar periods to build one hidden Markov model per device \cite{Kolter}.
-Unfortunately the algorithm to find these periods is not described in detail, though Kolter seems to find them by looking for intervals when only one device is active.
+Unfortunately the algorithm to find these periods is not described in detail, though it seems to find them by looking for intervals when only one device is active.
 For some devices, \cite{Kolter} claims to reach precision values of over 90\%, but since the recall values are not given it is hard to judge these results.
 
 In contrast to this completely unsupervised approach, Parson \cite{Parson} starts with knowledge about the general device type and produces a generic model for each device, which is then fitted to the actual device.
@@ -90,6 +92,7 @@ The algorithm's biggest benefit is that it identifies the devices without the ne
 The algorithm also has the advantage that it does not require the assumption that the number of devices in the house is known.
 For devices with clearly distinguished patterns (e.g. fridges) Parson reaches F-scores up to 85\%, while achieving results under 20\% for unstable devices (e.g. microwaves).
 Even though his allocation of generic models and minute-wise measurements did not seem useful for our approach, Parson's work led us to the REDD-dataset and to the idea of looking for timesteps when only one device changes its activity status.
+
 
 %TODO: Citations for this
 
