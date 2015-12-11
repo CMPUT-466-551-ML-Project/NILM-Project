@@ -107,7 +107,7 @@ class TestPreprocessConfidenceEstimator(unittest.TestCase):
         """Test the estimator by finding intervals of a single active device."""
         estimate = confidence_estimator(self.aggregate.powers, self.devices,
                                         sort_data)
-        estimate_test = {'a': np.float32(4.5), 'b': np.float32(-2.5)}
+        estimate_test = {'a': np.float32(4.5), 'b': np.float32(0)}
         self.assertEqual(estimate, estimate_test)
 
     def test_get_changed_data(self):
