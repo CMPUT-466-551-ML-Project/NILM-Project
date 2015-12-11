@@ -367,10 +367,8 @@ Markov & 90.9915 \\
 \section{Discussion} \label{sec:Discussion}
 
 For many devices, the neural network will guess approximately constant value rather than accounting for the device being on or off.
-The network will generally guess 
-This causes the overall estimation to perform badly with precision which causes a low f\_score.
-An example is in figure XXXX
-This causes some of the devices, like XXXXX, to not even have a precision value, due to it never estimating a energy usage high enough to be counted as the device being on.
+This causes the overall estimation to perform badly with precision which causes a low f\_score, a example is in Figure-\ref{fig:KitchenOutlets}.
+This causes some of the devices, like the Oven, to not even have a f\_score, due to it never estimating a energy usage high enough to be counted as the device being on.
 
 \begin{figure}
 
@@ -398,7 +396,7 @@ table
 \end{axis}
 \end{tikzpicture}
 
-\captionof{figure}{Estimating constant value, Kitchen Outlets}
+\captionof{figure}{Energy Estimation for Kitchen Outlets}  \label{fig:KitchenOutlets}
 \end{figure}
 
 \begin{figure}
@@ -406,7 +404,6 @@ table
 \pgfplotsset{legend style={line width=1pt}}
 \begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
 \begin{axis}[
-title=Washer and Dryer Energy Usage,
 xlabel={Time (s)},
 ylabel={Power (W)},
 legend entries={true,estimate, synthesized estimate, constant syntehsized},
@@ -427,7 +424,7 @@ table
 {washer_dryer_constant_synthesized_estimate.dat};
 \end{axis}
 \end{tikzpicture}
-\captionof{figure}{Energy Estimation for Washer \& Dryer}
+\captionof{figure}{Energy Estimation for Washer \& Dryer}  \label{fig:WasherDryer}
 \end{figure}
 
 \subsection{Future Work}
