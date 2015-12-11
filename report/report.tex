@@ -148,7 +148,7 @@ We also standardized the input before running the neural network. Every input wi
 
 For resutls, the paper comparing neural networks shows the denoising autoencoder as having a recall score of 94\%, a precision score of 56\%, and thus an F-score of 70\% \cite{Kelly}. Before we ran our experiment based on just the on/off binary information, we ran our denoising autoencoder with the actual disaggregated power consumption as the target output on the REDD dataset attempting to get numbers close to these ones to test that our neural network was working correctly.
 
-\section{Preprocessing}
+\subsection{Preprocessing}
 ​
 Robust evaluation metrics are essential to applying supervised learning techniques. Unfortunately, obtaining reasonable metrics is near impossible without actual power outputs of individual devices. Nonetheless, we are still interested in applying supervised approaches, which have a strong history of success in the energy disaggregation literature. Our solution separately estimates the individual power outputs on each device on the training data, as a preprocessing step to train a more powerful prediction algorithm. We emphasize that as a general prediction method, the preprocessing algorithms we describe are not viable, since after the training phase we have no access to device on/off indicators, which are key in obtaining power output.
 
@@ -156,7 +156,7 @@ Inferring general power outputs is an underdetermined problem. Good results can 
 ​
 In the subsequent section, the following notation will be convenient. We shall let $N$ denote the number of devices we are observing, and $T$ the number of time steps. The random variable $X_i^t$ models the output of the device $i$ at the time $t$, and $Y^t = \sum X_i^t$ denotes the total power output. We observe the indicators $I_i^t = \mathbf{I}(X_i^t > 0)$ and $Y^t$ over the range of $i$ and $t$, and must predict the $X_i^t$ to the best of our ability.
 ​
-\subsection{A Constant Power Assumption}
+\subsubsection{A Constant Power Assumption}
 
 In our first model, we assume that the output of devices are mutually independant, and that the outputs of a specific device are independant and identically distributed with respect to time, given that the device is switched on. The mathematics tells us that there are numbers $P_1, \dots, P_n \in \mathbf{R}^+$ for which $X_i^t \sim P_i + \varepsilon_i$, where $\mathbf{E}(\varepsilon_i) = 0$. Given that the variances $\mathbf{V}(\varepsilon_i)$ are small, it can be inferred that the variables do not deviate far from their average with respect to the $L_2$ norm, and therefore a constant power approximation for each device is accurate. Our problem reduces to finding the values $P_i$. After the $P_i$ are predicted, output estimations are calculated via the equation
 %
@@ -175,7 +175,7 @@ with respect to the known total $Y^t$. This can be easily found by the optimizat
 %
 In our implementation, we use Scipy's {\it optimize()} method to determine the $P_i$, which uses sequential least squares to calculate the optimum.
 
-\subsection{Confidence Intervals}
+\subsubsection{Confidence Intervals}
 
 Optimizing the $L_2$ eror of the problem treats the problem as a data-fitting task, and ignores the stochastic nature of the problem. We may obtain better estimates via a method explicitly considering the random nature of the task. Note that, with the i.i.d. assumptions on the data, we can view the determination of the $P_i$ as a problem in estimation statistics, analogous to a statistical study on a well-chosen sample. Our exterior knowledge of the problem (the indicator functions and total power output), we are able to infer a number of samples of the $P_i$ from the data given, which we may use to construct an estimator. A statistical study is evalated by confidence in the estimators attained. We propose that choosing the $P_i$ to minimize these confidence intervals results in a good estimate of the $P_i$, since we maximize the accuracy by which we obtain the $P_i$.
 
@@ -185,7 +185,7 @@ We cannot do much more to obtain further estimates. Under our assumptions, we ar
 
 Now suppose the estimates $\hat{P_i}$ have been derived from the data given. If we trust at least one of our estimates, we may `erase it' from the rest of the data, replacing $Y^t$ with $Y^t - I_i^t \hat{P_i}$. We may then treat the sample as if the $i$'th device was never on. By recursively following these steps, removing $\hat{P_{i_1}}$, then $\hat{P_{i_2}}$, up to $\hat{P_{i_N}}$, we obtain final estimates of each sample. We hope to remove the estimates in such an order such that the confidence intervals are optimized. Global optima for this step are combinatorially difficult to find. Instead, we just use a greedy heuristic -- remove the estimate with the smallest variance, which assuming that the errors are normally distributed, is proportional to the confidence interval. Better results may be obtained if one accounts for the number of additional samples one may obtain if the device is not removed at a certain time.
 
-\subsection{Estimating Difference Markov Processes}
+\subsubsection{Estimating Difference Markov Processes}
 
 The constant time assumption is a simple method for estimating power outputs, but it is somewhat simple, resulting in poor performance on actual applications. An alternate model of the data-generating process assumes the underlying appliance power generators are mutually independant markov models. For introductory facts about Markov models, refer to a basic book in Markov models (e.g. Lawler).
 
