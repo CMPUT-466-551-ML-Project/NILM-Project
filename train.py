@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 
+from nilm.markov import fit_data
 from nilm.network import DenoisingAutoencoder
 from nilm.preprocess import (confidence_estimator, get_changed_data,
                              solve_constant_energy, sort_data)
@@ -49,6 +50,24 @@ def apply_preprocess(aggregated, devices, method, threshold=np.float32(0.0)):
             log.info('Setting constant energy %s for device %s.' %
                      (energy_dict[d.name], d.name))
             d.powers = energy_dict[d.name] * d.indicators(np.float32(10))
+
+    elif method == 'markov':
+        agg = dict((time, power) for (time, power) in enumerate(aggregated))
+        device = [i for i in xrange(len(devices))]
+        active = {}
+        for i, d in enumerate(devices):
+            active[(i,0)] = 0
+            for t, ind in enumerate(d.indicators(threshold)):
+                active[(i,t+1)] = ind * 1
+
+        for d in device:
+            print devices[d].name
+            try:
+                p = fit_data(agg, d, active, 3, device)
+                for (t, power) in p.iteritems():
+                    devices[d].powers[t-1] = power
+            except KeyError:
+                devices[d].powers = np.zeros(len(devices[d].powers))
 
 
 def main():
@@ -153,7 +172,7 @@ def get_parser():
     parser.add_argument('-l', '--log', default='/tmp/agg.log',
                         help='File to write log to.')
     parser.add_argument('-p', '--preprocess',
-                        choices=['raw','constant','interval','edge'],
+                        choices=['raw','constant','interval','edge', 'markov'],
                         default='raw',
                         help='Which preprocessing algorithm to use.')
     return parser
