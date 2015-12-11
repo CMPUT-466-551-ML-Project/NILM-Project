@@ -173,11 +173,11 @@ How do we obtain direct samples of a certain $P_i$ from the $Y_t$ and $I_i^t$ th
 
 We cannot do much more to obtain further estimates. Under our assumptions, we are effectively observing a discrete embedding in a continuous time markov process. In such a process, given our discrete embedding is suitable fine, two state changes in a single time epoch are very rare. It follows that this estimate is pretty much the best we can do, since we are obtaining estimates for almost every single time the device changes state, since multiple devices running at the same time obscure the sampling process.
 
-Now suppose the estimates $\hat{P_i}$ have been derived from the data given. If we trust at least one of our estimates, we may `erase it' from the rest of the data, replacing $Y^t$ with $Y^t - I_i^t \hat{P_i}$. We may then treat the sample as if the $i$'th device was never on. By recursively following these steps, removing $\hat{P_{i_1}}$, then $\hat{P_{i_2}}$, up to $\hat{P_{i_N}}$, we obtain final estimates of each sample. We hope to remove the estimates in such an order such that the confidence intervals are optimized. Global optima for this step are combinatorially difficult to find. Instead, we just use a greedy heuristic -- remove the estimate with the smallest variance, which assuming that the errors are normally distributed, is proportional to the confidence interval. Better results may be obtained if one accounts for the number of additional samples one may obtain if the device is not removed at a certain time.
+Now suppose the estimates $\hat{P_i}$ have been derived from the data given. If we trust at least one of our estimates, we may `erase it' from the rest of the data, replacing $Y^t$ with $Y^t - I_i^t \hat{P_i}$. We may then treat the sample as if the $i$'th device was never on. By recursively following these steps, removing $\hat{P_{i_1}}$, then $\hat{P_{i_2}}$, up to $\hat{P_{i_N}}$, we obtain final estimates of each sample. We hope to remove the estimates in such an order such that the confidence intervals are optimized. Global optima for this step are combinatorially difficult to find. Instead, we just use a greedy heuristic -- remove the estimate with the smallest variance, which assuming that the errors are normally distributed, is proportional to the confidence interval. Better results may be obtained if one's heuristic saves nodes for which much more information can be obtained.
 
 \subsubsection{Estimating Difference Markov Processes}
 
-The constant time assumption is a simple method for estimating power outputs, but it is somewhat simple, resulting in poor performance on actual applications. An alternate model of the data-generating process assumes the underlying appliance power generators are mutually independant markov models. For introductory facts about Markov models, refer to a basic book in Markov models (e.g. Lawler).
+The constant time assumption is a simple method for estimating power outputs, but it is somewhat simple, resulting in poor performance on actual applications. An alternate model of the data-generating process assumes the underlying appliance power generators are mutually independant markov models. For introductory facts about Markov models, refer to a basic book in Markov models (e.g. \cite{Lawler}).
 
 As an extension of the previous model, the power outputs of devices are constant when the underlying chain remains in a single state. This should suffice for most practical applications, since most appliances change their power load only when running in a different `mode' (an oven cooking at different temperatures, a computer under different stress levels, etc.).
 
@@ -193,6 +193,10 @@ Now we shall describe the optimization for a specific device $i$. Suppose that, 
 \begin{equation} \min_{\mu_1, \dots, \mu_K} \sum_{i = 1}^M l_i \min_{k \in \{ 1, \dots, K \}}(\Delta Y^{t_i} - \mu_k)^2 \end{equation}
 %
 There is a geometric interpretation of this minimization. Viewing the $\Delta Y^{t_i}$ as points, each with a `weight' $l_i$, we are attempting to choose the best centers of mass $\mu_1, \dots \mu_K$ which distribute themselves evenly between the points $\Delta Y^{t_i}$.
+
+\begin{center}
+	\includegraphics[scale = 0.5]{awdaw}
+\end{center}
 
 If we only have one mean to distribute over all $Y^{t_k}$, then the best choice is the weighted mean
 %
