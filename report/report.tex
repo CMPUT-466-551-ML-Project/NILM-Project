@@ -273,9 +273,22 @@ The input size was bounded to a maximum 1500 seconds, due to memory constraints 
 %TODO: Add reference to the table, correctly
 To first get a baseline, we trained and evaluated the auto encoder using the true device signatures to see, at best, how well it should do.
 These results are in Table-\ref{tab:RawEstimate}, and highlights how the network does very badly for most of the devices.
-We believe that the issues with this are due to not enough training data, as discussed in section XXXX.
 
-We then tried to generate additional data by XXXXX. The results for this are in Table-\ref{tab:RawEstimateAfterGenerate}.
+We believe that some of the issues with the network are due to not enough training data being available with an adequate amount of device activations for the network to learn on.
+To verify this hypothesis, we generated additional synthetic device data and re-trained our networks.
+The synthetic device data was generated with the following algorithm:
+
+For each period of time where the device is off, randomly select a real device activation.
+With 50-50 chance, apply the activation by adding its power consumption to both the aggregate and device power signals.
+We then move ahead in the timeseries by the size of the chosen activation, repeating this procedure while we are still inside the off-period of the device.
+
+This algorithm has the effect of adding many more device activations to the training data.
+In addition to training on synthetic data, we preserve the original aggregate and device power signals, which are also used during training.
+After testing against the hold-out set, this method seems promising, with our networks being better able to differentiate against the device being on versus being off.
+There are still some issues with this approach, such as the network predicting a large constant power consumption when a device is turned off, and being insensitive to some of the same devices as the original network.
+However, after adjusting for this constant power off-set, we see perfomance increases on the NILM task.
+This leads us to believe that training on larger datasets or investigating better data synthesis algorithms are likely to lead to improvements in the network's performance.
+The results after training with synthetic data are in Table-\ref{tab:RawEstimateAfterGenerate}.
 
 \begin{table*}[t]
 	\centering
