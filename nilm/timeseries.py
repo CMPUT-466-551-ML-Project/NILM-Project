@@ -133,6 +133,34 @@ class TimeSeries(object):
 
         return activations
 
+    def off_periods(self, threshold=np.float32(0.0)):
+        """
+        Returns the periods of time where the device is turned off as a list of
+        [start, end) index tuples. We assume that a device turning off then on
+        is an entire off period.
+        """
+        periods = []
+
+        ind = self.indicators(threshold)
+        in_interval = not ind[0]
+
+        if in_interval:
+            start = 0
+
+        for i in xrange(len(ind)):
+            if ind[i] and in_interval:
+                in_interval = False
+                periods.append((start, i))
+
+            if not ind[i] and not in_interval:
+                in_interval = True
+                start = i
+
+        if in_interval:
+            periods.append((start, len(ind)))
+
+        return periods
+
     def write(self, path):
         """
         Write the timeseries data to the given path.
