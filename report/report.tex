@@ -84,9 +84,9 @@ Kolter's algorithm finds periods of device activity, and clusters similar period
 Unfortunately the algorithm to find these periods is not described in detail, though Kolter seems to find them by looking for intervals when only one device is active.
 For some devices, \cite{Kolter} claims to reach precision values of over 90\%, but since the recall values are not given it is hard to judge these results.
 
-In contrast to this completely unsupervised approach, Parson starts with knowledge about the general device type and produces a generic model for each device, which is then fitted to the actual device.
-The generic and fitted models are difference hidden Markov models which have a second observation sequence representing the difference in power consumption between two time steps.
-The algorithm's biggest benefit is that it identifies the devices without the need for manual labeling, unlike most unsupervised methods in which the output disaggregated power consumption for some device has to be manually matched with an existing device.
+In contrast to this completely unsupervised approach, Parson \cite{Parson} starts with knowledge about the general device type and produces a generic model for each device, which is then fitted to the actual device.
+The generic and fitted models are difference hidden Markov models \cite{Kolter} which have a second observation sequence representing the difference in power consumption between two time steps.
+The algorithm's biggest benefit is that it identifies the devices without the need for manual labelingn \cite{Parson}, unlike most unsupervised methods in which the output disaggregated power consumption for some device has to be manually matched with an existing device.
 The algorithm also has the advantage that it does not require the assumption that the number of devices in the house is known.
 For devices with clearly distinguished patterns (e.g. fridges) Parson reaches F-scores up to 85\%, while achieving results under 20\% for unstable devices (e.g. microwaves).
 Even though his allocation of generic models and minute-wise measurements did not seem useful for our approach, Parson's work led us to the REDD-dataset and to the idea of looking for timesteps when only one device changes its activity status.
