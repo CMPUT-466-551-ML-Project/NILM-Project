@@ -377,7 +377,7 @@ This causes some of the devices, like the Oven, to not even have a f\_score, due
 xlabel={Time (s)},
 ylabel={Power (W)},
 legend entries={true,estimate, synthesized estimate, constant synthesized},
-%legend style={at={(0.75,1.03)},anchor=south},
+legend style={at={(1.00,0.99)},draw=none,fill=none},
 ]
 
 \addplot+[sharp plot, no marks, thick]
@@ -400,12 +400,12 @@ table
 
 \begin{figure}
 %TODO: Move legend, but to where? :O
-\pgfplotsset{legend style={line width=1pt}}
+\pgfplotsset{legend style={line width=0pt, fill=white, fill opacity=0.75, text opacity =1,draw=none,at={(0.99,0.99)}}}
 \begin{tikzpicture}[y=.2cm, x=.7cm,font=\sffamily]
 \begin{axis}[
 xlabel={Time (s)},
 ylabel={Power (W)},
-legend entries={true,estimate, synthesized estimate, constant syntehsized},
+legend entries={true,estimate, synthesized estimate, constant synthesized},
 %legend style={at={(0.75,1.03)},anchor=south},
 ]
 
