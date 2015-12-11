@@ -120,7 +120,8 @@ Even though the data set contains high-frequency measurements, we used the ones 
 Since not all devices exist in every house we focused on the most common ones: the dishwasher, washer-dryer-combinations (both in all houses), and refrigerator (in 5 out of 6 houses) as well as the microwave and stove (in all but two houses).
 Since the sum of all single devices and circuits does not sum up to the measured overall consumption, because small devices like consumer electronics were not traced, we compared two different approaches one with noise and one without.
 For the unnoised method we summed up only the consumption of the devices we used and took their sum as the aggregated energy consumption.
-We checked these results against the ones where we subtracted the devices which were not of interest for us from the measured overall consumption, which gave us a bigger than natural noise.\\
+We checked these results against the ones where we subtracted the devices which were not of interest for us from the measured overall consumption, which gave us a bigger than natural noise.
+We decided to use the approach which preserved the noise during training, since this method was more representative of the noise present in the mains power measurement.\\
 Our goal was to work only with the information if a device is inactive or active, whereby active means that it is actually on and not only in a standby mode.
 To generate the on/off-indicators we checked the dataset against a threshold $\delta$, assigning the device an indicator of $1$ if its consumption in the relevent time step exceeded the threshhold and considering the device as inactive otherwise, assigning $0$.
 Using the threshold eliminated the uninteresting phases of permanent standby uses, as they are common especially in refrigerators.
