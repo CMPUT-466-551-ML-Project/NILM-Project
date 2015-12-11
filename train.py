@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import random
 import sys
 
 import numpy as np
@@ -56,6 +57,7 @@ def main():
     args = parser.parse_args()
     format = '%(asctime)s %(message)s'
     logging.basicConfig(filename=args.log, level=logging.DEBUG, format=format)
+    random.seed(0)
 
     device_files = [os.path.abspath(os.path.join(args.dir, p)) for p in
                     os.listdir(args.dir)]
@@ -76,15 +78,27 @@ def main():
     apply_preprocess(agg_data.powers, device_in, args.preprocess,
                      np.float32(25.00))
 
+    agg_orig = agg_data
     for dev in device_in:
+        agg_data = TimeSeries()
+        agg_data.array = agg_orig.array.copy()
+
         log.info('Training: %s' % dev.name)
         activations = dev.activations(np.float32(25.0))
+        off_periods = dev.off_periods(np.float32(25.0))
 
         log.info('Activations:')
         for a in activations:
             log.info('From %s to %s lasting %s' % (dev.times[a[0]],
                                                    dev.times[a[1]-1],
                                                    a[1] - a[0]))
+
+        log.info('Off Periods:')
+        for a in off_periods:
+            log.info('From %s to %s lasting %s' % (dev.times[a[0]],
+                                                   dev.times[a[1]-1],
+                                                   a[1] - a[0]))
+
         if len(activations) == 0:
             log.info('No activations found.')
             continue
@@ -104,6 +118,28 @@ def main():
         log.info('Computing windows...')
         std_dev = np.std(np.random.choice(agg_data.powers, 10000))
         max_power = dev.powers.max()
+
+        log.info('Synthesizing data...')
+        for p in off_periods:
+            idx = 0
+            off_len = p[1] - p[0]
+            while idx < off_len:
+                choice = int(random.uniform(0, len(activations)))
+                activation = activations[choice]
+                activation_len = activation[1] - activation[0]
+
+                synthesize = random.random() > 0.5
+                if synthesize:
+                    for i in xrange(activation_len):
+                        if not idx + i < off_len:
+                            break
+
+                        mod_idx = p[0] + idx + i
+                        power = dev.powers[activation[0] + i]
+                        dev.powers[mod_idx] += power
+                        agg_data.powers[mod_idx] += power
+
+                idx += activation_len
 
         log.info('Std Dev: %s' % std_dev)
         log.info('Max Power: %s' % max_power)
