@@ -291,7 +291,7 @@ We then tried to generate additional data by XXXXX. The results for this are in 
 
 \begin{table*}[t]
 	\centering
-	\label{tab:RawEstimate} 
+	
 %TODO: Add label? and such. This needs to be at top of page.....
 $$\begin{tabular}{c||c|c|c|c|c|}
 Device & Total RMSE & f\_score & Activation RMSE & Maximum Energy usage & \% time active\\ %TODO: Add recall, precision?
@@ -301,13 +301,13 @@ kitchen outlets & 71.78 & 0.6087 & 79.49  & 1582.0 & 72.2\% \\ % Is house 3 chan
 washer \& dryer & 209.3 & 0.233 & 1657.61  & 3222.5 & 1.4\% \\ % Is house 1 channel 20
 \hline
 \end{tabular}$$
-\captionof{table}{Table Title}
+\captionof{table}{Table Title}\label{tab:RawEstimate} 
 \end{table*}
 
 %TODO: Fill in the data for this
 \begin{table*}[t]
 	\centering
-	\label{tab:RawEstimateAfterGenerate} 
+	
 	%TODO: Add label? and such. This needs to be at top of page.....
 	$$\begin{tabular}{c||c|c|c|c|c|}
 	Device & Total RMSE & f\_score & Activation RMSE & Maximum Energy usage & \% time active\\ %TODO: Add recall, precision?
@@ -317,7 +317,7 @@ washer \& dryer & 209.3 & 0.233 & 1657.61  & 3222.5 & 1.4\% \\ % Is house 1 chan
 	washer \& dryer & &  &  & &  \\ % Is house 1 channel 20
 	\hline
 	\end{tabular}$$
-	\captionof{table}{Table Title}
+	\captionof{table}{Table Title}\label{tab:RawEstimateAfterGenerate} 
 \end{table*}
 
 Next, we compared the error for the different preprocessing steps in two different ways.
@@ -327,7 +327,7 @@ For this table, we can assume that the lower the RMSE, the better the preprocess
 
 \begin{table*}[t]
 	\centering
-	\label{tab:PreproccesVsRawNetworkError} 
+	
 $$\begin{tabular}{c||c|c|c|c|c|c|c|}
 Method & Best RMSE & Worst RMSE & Best f\_score & Worst f\_score & Mean RMSE & Mean f\_score & \% Kept\\
 \hline
@@ -341,13 +341,13 @@ Markov & 0.9531 & 1.2217 & 0.7199 & 0.3015 & 1.061 & 0.4769 & 100\%  \\
 \hline
 \end{tabular}$$
 
-\captionof{table}{Preprocessing Relative to Original over All Data}
+\captionof{table}{Preprocessing Relative to Original over All Data}\label{tab:PreproccesVsRawNetworkError} 
 \end{table*}
 
 
 \begin{table}
 	\centering
-	\label{tab:PreprocessVsRawRMSE}
+	
 %Label: Methods comparison vs training relative to training with raw data. Over part of data
 $$\begin{tabular}{c||c|}
 Method & Average RMSE\\
@@ -361,7 +361,7 @@ Edge & 88.9079 \\
 Markov & 90.9915 \\
 \hline
 \end{tabular}$$
-\captionof{table}{Table Title}
+\captionof{table}{Table Title}\label{tab:PreprocessVsRawRMSE}
 \end{table}
 
 
