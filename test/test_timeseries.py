@@ -217,3 +217,26 @@ class TestTimeSeries(unittest.TestCase):
         activations = ts.activations(np.float32(0.5))
 
         self.assertItemsEqual(activations, test)
+
+    def test_off_periods(self):
+        """
+        Test retrieving the TimeSeries off period indices.
+        """
+        ts = TimeSeries()
+        ts.array.resize(11)
+        ts.array[0] = (np.uint32(1), np.float32(0.0))
+        ts.array[1] = (np.uint32(2), np.float32(0.0))
+        ts.array[2] = (np.uint32(3), np.float32(3.0))
+        ts.array[3] = (np.uint32(4), np.float32(3.0))
+        ts.array[4] = (np.uint32(5), np.float32(0.0))
+        ts.array[5] = (np.uint32(6), np.float32(1.0))
+        ts.array[6] = (np.uint32(7), np.float32(1.0))
+        ts.array[7] = (np.uint32(8), np.float32(0.0))
+        ts.array[8] = (np.uint32(9), np.float32(3.0))
+        ts.array[9] = (np.uint32(10), np.float32(0.0))
+        ts.array[10] = (np.uint32(10), np.float32(0.0))
+
+        test = [(0, 2), (4, 5), (7, 8), (9, 11)]
+        off_periods = ts.off_periods(np.float32(0.5))
+
+        self.assertItemsEqual(off_periods, test)
